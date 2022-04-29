@@ -1,0 +1,15 @@
+const_pionMass = 0.13497
+const_etaMass = 0.54786
+const_minTrackDr = 0.05
+const_minTrackPt = 3.0
+const_photonBoxPhi = 0.2
+const_photonBoxEta = 0.05
+const_photonMinPt = 3
+const_minPt = 20
+const_maxEta = 2.5
+const_isolationCone = 0.3
+const_chargedIsoCut = 0.1
+const_neutralIsoCut = 0.1
+const_egammaIsoCut = 0.1
+const_minTrackSymmetry = 0.2
+const_minPhotonSymmetry = 0.15
