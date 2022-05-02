@@ -176,6 +176,8 @@ class simpleSelector(Module):
         twoprongs = Collection(event, "TwoProng")
         if self.sel == 'one muon':
           if len(muons) == 0 : return False
+        if self.sel == 'one photon':
+          if len(photons) == 0 : return False
         return True
 
 
