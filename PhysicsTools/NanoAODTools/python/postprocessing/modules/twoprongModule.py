@@ -152,8 +152,38 @@ class twoprongModule(Module):
           self.out.fillBranch("TwoProng_egammaIso", TwoProng_egammaIso)
         return True
 
+class simpleSelector(Module):
+    def __init__(self, selection=''):
+        self.sel = selection
+        pass
+
+    def beginJob(self):
+        pass
+
+    def endJob(self):
+        pass
+
+    def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
+        pass
+
+    def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
+        pass
+
+    def analyze(self, event):
+        """process event, return True (go to next module) or False (fail, go to next event)"""
+        electrons = Collection(event, "Electron")
+        muons = Collection(event, "Muon")
+        twoprongs = Collection(event, "TwoProng")
+        if self.sel == 'one muon':
+          if len(muons) == 0 : return False
+        return True
+
 
 # define modules using the syntax 'name = lambda : constructor' to avoid having them loaded when not needed
 
 twoprongConstr_default = lambda: twoprongModule()
 twoprongConstr_addLooseIso = lambda: twoprongModule(addLooseIso=True)
+
+selectionConstr_default = lambda: simpleSelector()
+selectionConstr_muon = lambda: simpleSelector('one muon')
+selectionConstr_photon = lambda: simpleSelector('one photon')
