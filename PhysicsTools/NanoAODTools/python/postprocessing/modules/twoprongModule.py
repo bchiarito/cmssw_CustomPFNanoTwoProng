@@ -5,7 +5,8 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 import math
 
 from twoprong_constants import *
-import simpleSelector
+from simpleSelector import *
+from photonModule import *
 
 class twoprongModule(Module):
     def __init__(self, addLooseIso=False):

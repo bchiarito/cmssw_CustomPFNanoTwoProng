@@ -236,6 +236,12 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
         seedGain = Var("userInt('seedGain')","uint8",doc="Gain of the seed crystal"),
+        ### ADDED ###
+        hadTowOverEm = Var("hadTowOverEm()",float,doc="hadTowOverEm()"),
+        chargedHadronIso = Var("chargedHadronIso()",float,doc="chargedHadronIso()"),
+        photonIso = Var("photonIso()",float,doc="photonIso()"),
+        scEta = Var("superCluster().eta()",float,doc="superCluster()->eta()"),
+        #############
     )
 )
 

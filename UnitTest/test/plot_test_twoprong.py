@@ -14,3 +14,4 @@ branches = tree.GetListOfBranches()
 for b in branches:
   name = b.GetName()
   if "TwoProng" in name: print name
+  if "HighPtIdPhoton" in name: print name
