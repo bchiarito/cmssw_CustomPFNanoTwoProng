@@ -2,28 +2,12 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collect
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 import ROOT
 import math
-
-# constants
-const_rho_definition = "fixedGridRhoFastjetAll"
-const_cut_HE = 0.05
-const_cut_IsoCh = 5
-const_cut_IsoGamma_EB = 2.75
-const_cut_IsoGamma_EE = 2.0
-const_cut_sieie_EBnosat = 0.0105
-const_cut_sieie_EBsat = 0.0112
-const_cut_sieie_EEnosat = 0.0280
-const_cut_sieie_EEsat = 0.0300
-const_EA_EB_1 = 0.17
-const_EA_EB_2 = 0.14
-const_EA_EE_1 = 0.11
-const_EA_EE_2 = 0.13
-const_EA_EE_3 = 0.22
-const_kappa_EB = 0.0045
-const_kappa_EE = 0.003
-const_ESCAPE = 99999.0
+from photon_constants import *
 
 class photonModule(Module):
-    def __init__(self):
+
+    def __init__(self, addLoose=False):
+        self.addLoose = addLoose
         self.objects = []
         self.Variables = {}
         self.addCollection('HighPtIdPhoton')
@@ -36,6 +20,9 @@ class photonModule(Module):
         self.addVariable('HighPtIdPhoton', 'chargedIso', 'F', 'chargedHadronIso')
         self.addVariable('HighPtIdPhoton', 'egammaIso', 'F', 'photonIso')
         self.addVariable('HighPtIdPhoton', 'scEta', 'F', 'scEta')
+        self.addVariable('HighPtIdPhoton', 'isTight', 'F', None)
+        self.addVariable('HighPtIdPhoton', 'isTightCone', 'F', None)
+        self.addVariable('HighPtIdPhoton', 'photonIdx', 'I', None)
 
     def addVariable(self, base, name, type_, access):
         temp = {}
@@ -80,21 +67,24 @@ class photonModule(Module):
 
         # calcuate high-pt-id photon
         photon_branch_name = 'HighPtIdPhoton'
-        for photon in photons:
+        for i, photon in enumerate(photons):
           isSat = self.photon_isSat(photon)
           passID = self.photon_passID(photon, isSat, rho)
           passConeID = self.photon_passConeID(photon, isSat, rho)
-          if passID:
+          if passID or passConeID or self.addLoose:
             for var in self.Variables[photon_branch_name]:
               if not var['access'] == None:
                 exec("temp = photon."+var['access'])
                 TempVectors[photon_branch_name][var['name']].append(temp)
-              else:
-                pass
-              # one off example
-              # if var['name'] == <varname that requires calculation>:
-              #   temp = <any calculation here>
-              #   TempVectors['TestObj'][var['name']].append(temp)
+              if var['name'] == 'isTight':
+                temp = passID
+                TempVectors[photon_branch_name][var['name']].append(temp)
+              if var['name'] == 'isTightCone':
+                temp = passConeID
+                TempVectors[photon_branch_name][var['name']].append(temp)
+              if var['name'] == 'photonIdx':
+                temp = i
+                TempVectors[photon_branch_name][var['name']].append(temp)
 
         # fill branches
         for base in self.objects:
@@ -106,7 +96,7 @@ class photonModule(Module):
 
     def photon_isSat(self, photon):
         # FIXME
-        return True
+        return False
     
     def photon_passID(self, photon, isSat, rho):
         return self.photon_passHE(photon) and \
@@ -160,3 +150,4 @@ class photonModule(Module):
         else: return False
 
 photonConstr_default = lambda: photonModule()
+photonConstr_addLoose = lambda: photonModule(addLoose=True)
