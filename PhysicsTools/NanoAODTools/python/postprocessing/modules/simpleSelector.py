@@ -24,6 +24,7 @@ class simpleSelector(Module):
         """process event, return True (go to next module) or False (fail, go to next event)"""
         electrons = Collection(event, "Electron")
         muons = Collection(event, "Muon")
+        photons = Collection(event, "Photon")
         twoprongs = Collection(event, "TwoProng")
         if self.sel == 'one muon':
           if len(muons) == 0 : return False

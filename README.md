@@ -9,8 +9,7 @@ scram b -j 10
 
 ### unit testing
 ```
-UnitTest/test/test_pfnano.sh
-UnitTest/test/test_postproc.sh
+UnitTest/test/
 ```
 
 ### running by hand
@@ -30,5 +29,6 @@ git clone https://github.com/cms-jet/PFNano.git PhysicsTools/PFNano
 git clone https://github.com/cms-nanoAOD/nanoAOD-tools.git PhysicsTools/NanoAODTools
 cp UnitTest/test/PFNano_tweaks/addPFCands_cff.py PhysicsTools/PFNano/python
 cp UnitTest/test/PFNano_tweaks/pfnano_cff.py PhysicsTools/PFNano/python
+cp UnitTest/test/PFNano_tweaks/photons_cff.py PhysicsTools/NanoAOD/python
 scram b -j 10
 ```
