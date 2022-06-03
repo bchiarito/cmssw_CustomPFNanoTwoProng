@@ -42,7 +42,15 @@ if options.inputFilesFile == "":
 else:
   with open(options.inputFilesFile) as fi:
     for line in fi:
-      readFiles.append(line.strip())
+      # process line if .dat
+      if options.inputFilesFile[-4:] == '.dat':
+        newline = line.strip()
+        i = newline.rfind('/')
+        newline = newline[i+1:len(line)]
+        readFiles.append('file:'+newline)
+      # dont process for .txt
+      if options.inputFilesFile[-4:] == '.txt':
+        readFiles.append(line.strip())
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( readFiles ),
     secondaryFileNames = cms.untracked.vstring(),
