@@ -1,4 +1,4 @@
-from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
+from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection, Object
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -12,6 +12,11 @@ class twoprongModule(Module):
     def __init__(self, addLooseIso=False):
         self.addLooseIso = addLooseIso
         pass
+
+    def mygetattr(self, my_obj, my_branch, default_bool):
+        try: getattr(my_obj, my_branch)
+        except RuntimeError: return default_bool
+        else: return getattr(my_obj, my_branch)
 
     def beginJob(self):
         pass
@@ -42,6 +47,21 @@ class twoprongModule(Module):
         """process event, return True (go to next module) or False (fail, go to next event)"""
         jets = Collection(event, "Jet")
         pfcands = Collection(event, "PFCands")
+        flags = Object(event, "Flag")
+
+        # baseline filtering
+        pass_filter = (
+        self.mygetattr(flags, 'goodVertices', True)
+        and self.mygetattr(flags, 'HBHENoiseFilter', True)
+        and self.mygetattr(flags, 'HBHENoiseIsoFilter', True)
+        and self.mygetattr(flags, 'EcalDeadCellTriggerPrimitiveFilter', True)
+        and self.mygetattr(flags, 'BadPFMuonFilter', True)
+        and self.mygetattr(flags, 'BadChargedCandidateFilter', True)
+        and self.mygetattr(flags, 'ecalBadCalibFilter', True)
+        and self.mygetattr(flags, 'globalSuperTightHalo2016Filter', True)
+        and self.mygetattr(flags, 'eeBadScFilter', True)
+        )
+        if not (pass_baseline): return False
 
         # per event vectors
         TwoProng_pt = []
