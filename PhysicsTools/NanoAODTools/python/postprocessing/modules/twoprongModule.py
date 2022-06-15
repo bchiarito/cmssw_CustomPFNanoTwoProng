@@ -50,7 +50,7 @@ class twoprongModule(Module):
         flags = Object(event, "Flag")
 
         # baseline filtering
-        pass_filter = (
+        pass_filters = (
         self.mygetattr(flags, 'goodVertices', True)
         and self.mygetattr(flags, 'HBHENoiseFilter', True)
         and self.mygetattr(flags, 'HBHENoiseIsoFilter', True)
@@ -61,7 +61,7 @@ class twoprongModule(Module):
         and self.mygetattr(flags, 'globalSuperTightHalo2016Filter', True)
         and self.mygetattr(flags, 'eeBadScFilter', True)
         )
-        if not (pass_baseline): return False
+        if not (pass_filters): return False
 
         # per event vectors
         TwoProng_pt = []
