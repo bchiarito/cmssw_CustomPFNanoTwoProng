@@ -30,5 +30,7 @@ git clone https://github.com/cms-nanoAOD/nanoAOD-tools.git PhysicsTools/NanoAODT
 cp UnitTest/test/PFNano_tweaks/addPFCands_cff.py PhysicsTools/PFNano/python
 cp UnitTest/test/PFNano_tweaks/pfnano_cff.py PhysicsTools/PFNano/python
 cp UnitTest/test/PFNano_tweaks/photons_cff.py PhysicsTools/NanoAOD/python
+cp UnitTest/test/PFNano_tweaks/genparticles_cff.py_cff.py PhysicsTools/NanoAOD/python
+cp UnitTest/test/PFNano_tweaks/LHETablesProducer.cc PhysicsTools/NanoAOD/plugins
 scram b -j 10
 ```
