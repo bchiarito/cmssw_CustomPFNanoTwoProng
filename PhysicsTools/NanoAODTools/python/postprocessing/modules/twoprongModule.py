@@ -5,13 +5,11 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 import math
 
 from twoprong_constants import *
-from simpleSelector import *
-from photonModule import *
 
 class twoprongModule(Module):
-    def __init__(self, addLoose=False, extraTrack=False):
+    def __init__(self, addLoose=False, optionalTrack=False):
         self.addLoose = addLoose
-        self.extraTrack = addLoose
+        self.optionalTrack = addLoose
         pass
 
     def mygetattr(self, my_obj, my_branch, default_bool):
@@ -44,7 +42,7 @@ class twoprongModule(Module):
           self.out.branch("TwoProng_passIso", "I", lenVar="nTwoProng")
           self.out.branch("TwoProng_passSym", "I", lenVar="nTwoProng")
           self.out.branch("TwoProng_isTight", "I", lenVar="nTwoProng")
-        if self.extraTrack:
+        if self.optionalTrack:
           self.out.branch("TwoProng_nTracks", "F", lenVar="nTwoProng")
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
@@ -126,17 +124,31 @@ class twoprongModule(Module):
             for k in range(len(pfcands)):
               pfvec3 = pfcands[k].p4()
               pfvec3.SetPhi(pfcands[k].phiAtVtx)
+              extraTrackIndex = -1
               if center.DeltaR(pfvec3) > const_isolationCone : continue
               if (pfcands[k].fromPV <= 1) : continue
               if (abs(pfcands[k].pdgId) == 211 or abs(pfcands[k].pdgId) == 13):
                 if k == i or k == j : continue
-                chargedIso += pfvec3.Pt()
+                if not self.optionalTrack:
+                  chargedIso += pfvec3.Pt()
+                elif pfvec3.Pt() < const_minTrackPt:
+                  chargedIso += pfvec3.Pt()
+                else:
+                  if extraTrackIndex == -1:
+                    extraTrackIndex = k
+                  else:
+                    chargedIso += pfvec3.Pt()
               if pfcands[k].pdgId == 130:
                 neutralIso += pfvec3.Pt()
               if (abs(pfcands[k].pdgId) == 11 or pfcands[k].pdgId == 22):
                 if math.fabs(center.DeltaPhi(pfvec3)) <= const_photonBoxPhi/2.0 and math.fabs(center.Eta() - pfvec3.Eta()) <= const_photonBoxEta/2.0:
                   continue
                 egammaIso += pfvec3.Pt()
+            if self.optionalTrack:
+              # reform twoprong momentum with extra track
+              extraTrack = pfcands[extraTrackIndex].p4()
+              extraTrack.setPhi(pfcands[extraTrackIndex].PhiAtVtx)
+              twoprong = center + photon + extraTrack
             passIso = True
             if chargedIso/twoprong.Pt() > const_chargedIsoCut : passIso = False
             if neutralIso/twoprong.Pt() > const_neutralIsoCut : passIso = False
@@ -170,6 +182,8 @@ class twoprongModule(Module):
               TwoProng_passIso.append(passIso)
               TwoProng_passSym.append(passSym)
               TwoProng_isTight.append(passIso and passSym)
+            if self.optionalTrack:
+              TwoProng_nTracks.append(2 if extraTrackIndex==-1 else 3)
         # loop over pfcands finished
 
         # fill branches
@@ -191,6 +205,8 @@ class twoprongModule(Module):
           self.out.fillBranch("TwoProng_passIso", TwoProng_passIso)
           self.out.fillBranch("TwoProng_passSym", TwoProng_passSym)
           self.out.fillBranch("TwoProng_isTight", TwoProng_isTight)
+        if self.optionalTrack:
+          self.out.fillBranch("TwoProng_nTracks", TwoProng_nTracks)
         return True
 
 
@@ -198,5 +214,5 @@ class twoprongModule(Module):
 
 twoprongConstr_default = lambda: twoprongModule()
 twoprongConstr_addLoose = lambda: twoprongModule(addLoose=True)
-twoprongConstr_extraTrack = lambda: twoprongModule(extraTrack=True)
-twoprongConstr_extraTrack_addLoose = lambda: twoprongModule(extraTrack=True, addLoose=True)
+twoprongConstr_optionalTrack = lambda: twoprongModule(optionalTrack=True)
+twoprongConstr_optionalTrack_addLoose = lambda: twoprongModule(optionalTrack=True, addLoose=True)
