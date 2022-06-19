@@ -163,6 +163,7 @@ class customGenPartModule(Module):
           GenOmega_status.append(genparticles[t].status)
           GenOmega_index.append(t)
           decaymode = self.get_decaymode(t, genparticles)
+          #print decaymode
           GenOmega_decaymode.append(decaymode)
           GenOmega_prongs.append(self.get_prongs(decaymode))
 
@@ -177,6 +178,7 @@ class customGenPartModule(Module):
               GenOmega_status.append(genparticle.status)
               GenOmega_index.append(i)
               decaymode = self.get_decaymode(i, genparticles)
+              #print decaymode
               GenOmega_decaymode.append(decaymode)
               GenOmega_prongs.append(self.get_prongs(decaymode))
 
