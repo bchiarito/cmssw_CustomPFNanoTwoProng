@@ -5,7 +5,8 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 import math
 
 class dataFiltersModule(Module):
-    def __init__(self):
+    def __init__(self, year):
+        self.year = year
         pass
 
     def mygetattr(self, my_obj, my_branch, default_bool):
@@ -29,20 +30,31 @@ class dataFiltersModule(Module):
         """process event, return True (go to next module) or False (fail, go to next event)"""
         flags = Object(event, "Flag")
 
-        pass_filters = (
-        self.mygetattr(flags, 'goodVertices', True)
-        and self.mygetattr(flags, 'HBHENoiseFilter', True)
-        and self.mygetattr(flags, 'HBHENoiseIsoFilter', True)
-        and self.mygetattr(flags, 'EcalDeadCellTriggerPrimitiveFilter', True)
-        and self.mygetattr(flags, 'BadPFMuonFilter', True)
-        and self.mygetattr(flags, 'BadChargedCandidateFilter', True)
-        and self.mygetattr(flags, 'ecalBadCalibFilter', True)
-        and self.mygetattr(flags, 'globalSuperTightHalo2016Filter', True)
-        and self.mygetattr(flags, 'eeBadScFilter', True)
-        )
-        if not (pass_filters): return False
-        return True
+        if self.year == 'UL18':
+          pass_filters = (
+          self.mygetattr(flags, 'goodVertices', True)
+          and self.mygetattr(flags, 'HBHENoiseFilter', True)
+          and self.mygetattr(flags, 'HBHENoiseIsoFilter', True)
+          and self.mygetattr(flags, 'EcalDeadCellTriggerPrimitiveFilter', True)
+          and self.mygetattr(flags, 'BadPFMuonFilter', True)
+          and self.mygetattr(flags, 'BadChargedCandidateFilter', True)
+          and self.mygetattr(flags, 'ecalBadCalibFilter', True)
+          and self.mygetattr(flags, 'globalSuperTightHalo2016Filter', True)
+          and self.mygetattr(flags, 'eeBadScFilter', True)
+          )
+          if not (pass_filters): return False
+          return True
+        elif self.year == 'UL18':
+          # FIXME
+          return True
+        elif self.year == 'UL18':
+          # FIXME
+          return True
+        else: return True
 
 # define modules using the syntax 'name = lambda : constructor' to avoid having them loaded when not needed
 
-filtersConstr_default = lambda: dataFiltersModule()
+filtersConstr_default = lambda: dataFiltersModule('UL18')
+filtersConstr_UL18 = lambda: dataFiltersModule('UL18')
+filtersConstr_UL17 = lambda: dataFiltersModule('UL17')
+filtersConstr_UL16 = lambda: dataFiltersModule('UL16')
