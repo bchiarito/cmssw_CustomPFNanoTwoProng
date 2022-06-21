@@ -1,17 +1,21 @@
-from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
+from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection, Object
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 import math
 
 from twoprong_constants import *
-from simpleSelector import *
-from photonModule import *
 
 class twoprongModule(Module):
-    def __init__(self, addLooseIso=False):
-        self.addLooseIso = addLooseIso
+    def __init__(self, addLoose=False, optionalTrack=False):
+        self.addLoose = addLoose
+        self.optionalTrack = addLoose
         pass
+
+    def mygetattr(self, my_obj, my_branch, default_bool):
+        try: getattr(my_obj, my_branch)
+        except RuntimeError: return default_bool
+        else: return getattr(my_obj, my_branch)
 
     def beginJob(self):
         pass
@@ -29,11 +33,17 @@ class twoprongModule(Module):
         self.out.branch("TwoProng_massl", "F", lenVar="nTwoProng")
         self.out.branch("TwoProng_massPi0", "F", lenVar="nTwoProng")
         self.out.branch("TwoProng_massEta", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_passIso", "I", lenVar="nTwoProng")
-        if self.addLooseIso:
+        if self.addLoose:
           self.out.branch("TwoProng_chargedIso", "F", lenVar="nTwoProng")
           self.out.branch("TwoProng_neutralIso", "F", lenVar="nTwoProng")
           self.out.branch("TwoProng_egammaIso", "F", lenVar="nTwoProng")
+          self.out.branch("TwoProng_trackSym", "F", lenVar="nTwoProng")
+          self.out.branch("TwoProng_photonSym", "F", lenVar="nTwoProng")
+          self.out.branch("TwoProng_passIso", "I", lenVar="nTwoProng")
+          self.out.branch("TwoProng_passSym", "I", lenVar="nTwoProng")
+          self.out.branch("TwoProng_isTight", "I", lenVar="nTwoProng")
+        if self.optionalTrack:
+          self.out.branch("TwoProng_nTracks", "F", lenVar="nTwoProng")
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
@@ -42,6 +52,21 @@ class twoprongModule(Module):
         """process event, return True (go to next module) or False (fail, go to next event)"""
         jets = Collection(event, "Jet")
         pfcands = Collection(event, "PFCands")
+        flags = Object(event, "Flag")
+
+        # baseline filtering
+        pass_filters = (
+        self.mygetattr(flags, 'goodVertices', True)
+        and self.mygetattr(flags, 'HBHENoiseFilter', True)
+        and self.mygetattr(flags, 'HBHENoiseIsoFilter', True)
+        and self.mygetattr(flags, 'EcalDeadCellTriggerPrimitiveFilter', True)
+        and self.mygetattr(flags, 'BadPFMuonFilter', True)
+        and self.mygetattr(flags, 'BadChargedCandidateFilter', True)
+        and self.mygetattr(flags, 'ecalBadCalibFilter', True)
+        and self.mygetattr(flags, 'globalSuperTightHalo2016Filter', True)
+        and self.mygetattr(flags, 'eeBadScFilter', True)
+        )
+        if not (pass_filters): return False
 
         # per event vectors
         TwoProng_pt = []
@@ -51,11 +76,14 @@ class twoprongModule(Module):
         TwoProng_massl = []
         TwoProng_massPi0 = []
         TwoProng_massEta = []
-        TwoProng_passIso = []
-        if self.addLooseIso:
+        if self.addLoose:
           TwoProng_chargedIso = []
           TwoProng_neutralIso = []
           TwoProng_egammaIso = []
+          TwoProng_trackSym = []
+          TwoProng_photonSym = []
+          TwoProng_passIso = []
+          TwoProng_isTight = []
 
         # loop over pf cands
         for i in range(len(pfcands)):
@@ -86,13 +114,9 @@ class twoprongModule(Module):
               if math.fabs(center.Eta() - pfvec3.Eta()) > const_photonBoxEta/2.0 : continue
               photon += pfvec3
               if pfvec3.Pt() > leading_pf_photon.Pt() : leading_pf_photon = pfvec3
-            if photon.Pt() < const_photonMinPt : continue
             photonPi0.SetPtEtaPhiM(photon.Pt(), photon.Eta(), photon.Phi(), const_pionMass)
             photonEta.SetPtEtaPhiM(photon.Pt(), photon.Eta(), photon.Phi(), const_etaMass)
             twoprong = center + photon
-            # overall kinematics
-            if twoprong.Pt() < const_minPt : continue
-            if math.fabs(twoprong.Eta()) > const_maxEta : continue
             # isolation
             chargedIso = 0
             neutralIso = 0
@@ -100,28 +124,47 @@ class twoprongModule(Module):
             for k in range(len(pfcands)):
               pfvec3 = pfcands[k].p4()
               pfvec3.SetPhi(pfcands[k].phiAtVtx)
+              extraTrackIndex = -1
               if center.DeltaR(pfvec3) > const_isolationCone : continue
               if (pfcands[k].fromPV <= 1) : continue
               if (abs(pfcands[k].pdgId) == 211 or abs(pfcands[k].pdgId) == 13):
                 if k == i or k == j : continue
-                chargedIso += pfvec3.Pt()
+                if not self.optionalTrack:
+                  chargedIso += pfvec3.Pt()
+                elif pfvec3.Pt() < const_minTrackPt:
+                  chargedIso += pfvec3.Pt()
+                else:
+                  if extraTrackIndex == -1:
+                    extraTrackIndex = k
+                  else:
+                    chargedIso += pfvec3.Pt()
               if pfcands[k].pdgId == 130:
                 neutralIso += pfvec3.Pt()
               if (abs(pfcands[k].pdgId) == 11 or pfcands[k].pdgId == 22):
                 if math.fabs(center.DeltaPhi(pfvec3)) <= const_photonBoxPhi/2.0 and math.fabs(center.Eta() - pfvec3.Eta()) <= const_photonBoxEta/2.0:
                   continue
                 egammaIso += pfvec3.Pt()
+            if self.optionalTrack:
+              # reform twoprong momentum with extra track
+              extraTrack = pfcands[extraTrackIndex].p4()
+              extraTrack.setPhi(pfcands[extraTrackIndex].PhiAtVtx)
+              twoprong = center + photon + extraTrack
             passIso = True
             if chargedIso/twoprong.Pt() > const_chargedIsoCut : passIso = False
             if neutralIso/twoprong.Pt() > const_neutralIsoCut : passIso = False
             if egammaIso/twoprong.Pt() > const_egammaIsoCut : passIso = False
-            if not self.addLooseIso and not passIso: continue
             # symmetry
             passSym = True
             track_symmetry = min(pfvec1.Pt(), pfvec2.Pt()) / max(pfvec1.Pt(), pfvec2.Pt())
             photon_symmetry = min(pfvec1.Pt()+pfvec2.Pt(), photon.Pt()) / max(pfvec1.Pt()+pfvec2.Pt(), photon.Pt())
             if track_symmetry < const_minTrackSymmetry : passSym = False
             if photon_symmetry < const_minPhotonSymmetry : passSym = False
+            # apply cuts
+            if photon.Pt() < const_photonMinPt : continue
+            if twoprong.Pt() < const_minPt : continue
+            if math.fabs(twoprong.Eta()) > const_maxEta : continue
+            if not self.addLoose and not passIso: continue
+            if not self.addLoose and not passSym: continue
             # finished, store
             TwoProng_pt.append(twoprong.Pt())            
             TwoProng_phi.append(twoprong.Phi())            
@@ -130,15 +173,21 @@ class twoprongModule(Module):
             TwoProng_massl.append((center+leading_pf_photon).M())            
             TwoProng_massPi0.append((center+photonPi0).M())
             TwoProng_massEta.append((center+photonEta).M())            
-            TwoProng_passIso.append(passIso)
-            if self.addLooseIso:
+            if self.addLoose:
               TwoProng_chargedIso.append(chargedIso/twoprong.Pt())
               TwoProng_neutralIso.append(neutralIso/twoprong.Pt())
               TwoProng_egammaIso.append(egammaIso/twoprong.Pt())
+              TwoProng_trackSym.append(track_symmetry)
+              TwoProng_photonSym.append(photon_symmetry)
+              TwoProng_passIso.append(passIso)
+              TwoProng_passSym.append(passSym)
+              TwoProng_isTight.append(passIso and passSym)
+            if self.optionalTrack:
+              TwoProng_nTracks.append(2 if extraTrackIndex==-1 else 3)
         # loop over pfcands finished
-        nTwoProng = len(TwoProng_pt)
 
         # fill branches
+        nTwoProng = len(TwoProng_pt)
         self.out.fillBranch("nTwoProng", nTwoProng)
         self.out.fillBranch("TwoProng_pt", TwoProng_pt)
         self.out.fillBranch("TwoProng_eta", TwoProng_eta)
@@ -147,15 +196,23 @@ class twoprongModule(Module):
         self.out.fillBranch("TwoProng_massl", TwoProng_massl)
         self.out.fillBranch("TwoProng_massPi0", TwoProng_massPi0)
         self.out.fillBranch("TwoProng_massEta", TwoProng_massEta)
-        self.out.fillBranch("TwoProng_passIso", TwoProng_passIso)
-        if self.addLooseIso:
+        if self.addLoose:
           self.out.fillBranch("TwoProng_chargedIso", TwoProng_chargedIso)
           self.out.fillBranch("TwoProng_neutralIso", TwoProng_neutralIso)
           self.out.fillBranch("TwoProng_egammaIso", TwoProng_egammaIso)
+          self.out.fillBranch("TwoProng_trackSym", TwoProng_trackSym)
+          self.out.fillBranch("TwoProng_photonSym", TwoProng_photonSym)
+          self.out.fillBranch("TwoProng_passIso", TwoProng_passIso)
+          self.out.fillBranch("TwoProng_passSym", TwoProng_passSym)
+          self.out.fillBranch("TwoProng_isTight", TwoProng_isTight)
+        if self.optionalTrack:
+          self.out.fillBranch("TwoProng_nTracks", TwoProng_nTracks)
         return True
 
 
 # define modules using the syntax 'name = lambda : constructor' to avoid having them loaded when not needed
 
 twoprongConstr_default = lambda: twoprongModule()
-twoprongConstr_addLooseIso = lambda: twoprongModule(addLooseIso=True)
+twoprongConstr_addLoose = lambda: twoprongModule(addLoose=True)
+twoprongConstr_optionalTrack = lambda: twoprongModule(optionalTrack=True)
+twoprongConstr_optionalTrack_addLoose = lambda: twoprongModule(optionalTrack=True, addLoose=True)
