@@ -7,7 +7,8 @@ import math
 class dataFiltersModule(Module):
     def __init__(self, year):
         self.year = year
-        pass
+        self.countTotalEvents = 0
+        self.countPassingEvents = 0
 
     def mygetattr(self, my_obj, my_branch, default_bool):
         try: getattr(my_obj, my_branch)
@@ -18,7 +19,8 @@ class dataFiltersModule(Module):
         pass
 
     def endJob(self):
-        pass
+        print "%%% dataFiltersModule --- total processed events", self.countTotalEvents
+        print "%%% dataFiltersModule --- total passed events", self.countPassingEvents
 
     def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
@@ -30,6 +32,7 @@ class dataFiltersModule(Module):
         """process event, return True (go to next module) or False (fail, go to next event)"""
         flags = Object(event, "Flag")
 
+        self.countTotalEvents += 1 
         if self.year == 'UL18':
           pass_filters = (
           self.mygetattr(flags, 'goodVertices', True)
@@ -43,6 +46,7 @@ class dataFiltersModule(Module):
           and self.mygetattr(flags, 'eeBadScFilter', True)
           )
           if not (pass_filters): return False
+          self.countPassingEvents += 1 
           return True
         elif self.year == 'UL18':
           # FIXME
