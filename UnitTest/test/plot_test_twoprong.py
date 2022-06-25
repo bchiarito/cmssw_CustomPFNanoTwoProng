@@ -23,5 +23,6 @@ for b in branches:
   if "GenPhi" in name: print name
   if "GenOmega" in name: print name
   if "TwoProng" in name: print name
+  if "RecoPhi" in name: print name
   if "HighPtIdPhoton" in name: print name
   
