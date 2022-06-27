@@ -83,6 +83,7 @@ class twoprongModule(Module):
           TwoProng_trackSym = []
           TwoProng_photonSym = []
           TwoProng_passIso = []
+          TwoProng_passSym = []
           TwoProng_isTight = []
 
         # loop over pf cands
