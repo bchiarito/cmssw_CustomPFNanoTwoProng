@@ -144,7 +144,7 @@ class twoprongModule(Module):
                 if math.fabs(center.DeltaPhi(pfvec3)) <= const_photonBoxPhi/2.0 and math.fabs(center.Eta() - pfvec3.Eta()) <= const_photonBoxEta/2.0:
                   continue
                 egammaIso += pfvec3.Pt()
-            if self.optionalTrack:
+            if self.optionalTrack and not extraTrackIndex == -1:
               # reform twoprong momentum with extra track
               extraTrack = pfcands[extraTrackIndex].p4()
               extraTrack.setPhi(pfcands[extraTrackIndex].PhiAtVtx)
