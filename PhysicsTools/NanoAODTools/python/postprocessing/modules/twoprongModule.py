@@ -9,7 +9,7 @@ from twoprong_constants import *
 class twoprongModule(Module):
     def __init__(self, addLoose=False, optionalTrack=False):
         self.addLoose = addLoose
-        self.optionalTrack = addLoose
+        self.optionalTrack = optionalTrack
         pass
 
     def mygetattr(self, my_obj, my_branch, default_bool):
@@ -76,6 +76,7 @@ class twoprongModule(Module):
         TwoProng_massl = []
         TwoProng_massPi0 = []
         TwoProng_massEta = []
+        TwoProng_nTracks = []
         if self.addLoose:
           TwoProng_chargedIso = []
           TwoProng_neutralIso = []
