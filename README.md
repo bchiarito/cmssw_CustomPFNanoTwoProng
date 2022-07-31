@@ -1,5 +1,6 @@
 ### build instructions
 ```
+export SCRAM_ARCH=slc7_amd64_gcc820
 cmsrel CMSSW_10_6_20
 cd CMSSW_10_6_20/src
 cmsenv
