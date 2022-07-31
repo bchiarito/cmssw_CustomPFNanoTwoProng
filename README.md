@@ -3,7 +3,7 @@
 cmsrel CMSSW_10_6_20
 cd CMSSW_10_6_20/src
 cmsenv
-git clone git@github.com:bchiarito/cmssw_CustomPFNanoTwoProng.git
+git clone git@github.com:bchiarito/cmssw_CustomPFNanoTwoProng.git .
 scram b -j 10
 ```
 
