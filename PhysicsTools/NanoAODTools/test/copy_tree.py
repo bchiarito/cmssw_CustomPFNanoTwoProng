@@ -9,3 +9,9 @@ if tree == None:
 newfile = ROOT.TFile("NANOAOD_TwoProng.root", "recreate")
 newtree = tree.CloneTree()
 newtree.Write()
+tree = fi.Get('Runs')
+if tree == None:
+  print "Error: No Runs tree found in file, failing"
+  sys.exit()
+newtree = tree.CloneTree()
+newtree.Write()
