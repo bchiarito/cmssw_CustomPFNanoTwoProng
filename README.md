@@ -35,3 +35,12 @@ cp UnitTest/test/PFNano_tweaks/genparticles_cff.py_cff.py PhysicsTools/NanoAOD/p
 cp UnitTest/test/PFNano_tweaks/LHETablesProducer.cc PhysicsTools/NanoAOD/plugins
 scram b -j 10
 ```
+
+### all module constructors
+genpartConstr   res, nonres
+filtersConstr   UL18
+photonConstr    default, addLoose
+recoPhiConstr   cutBased, HPID
+selectionConstr default, muon, photon
+twoprongConstr  default, addLoose, optionalTrack, optionalTrack_addLoose
+
