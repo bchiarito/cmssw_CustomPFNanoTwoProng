@@ -54,20 +54,6 @@ class twoprongModule(Module):
         pfcands = Collection(event, "PFCands")
         flags = Object(event, "Flag")
 
-        # baseline filtering
-        pass_filters = (
-        self.mygetattr(flags, 'goodVertices', True)
-        and self.mygetattr(flags, 'HBHENoiseFilter', True)
-        and self.mygetattr(flags, 'HBHENoiseIsoFilter', True)
-        and self.mygetattr(flags, 'EcalDeadCellTriggerPrimitiveFilter', True)
-        and self.mygetattr(flags, 'BadPFMuonFilter', True)
-        and self.mygetattr(flags, 'BadChargedCandidateFilter', True)
-        and self.mygetattr(flags, 'ecalBadCalibFilter', True)
-        and self.mygetattr(flags, 'globalSuperTightHalo2016Filter', True)
-        and self.mygetattr(flags, 'eeBadScFilter', True)
-        )
-        if not (pass_filters): return False
-
         # per event vectors
         TwoProng_pt = []
         TwoProng_eta = []
