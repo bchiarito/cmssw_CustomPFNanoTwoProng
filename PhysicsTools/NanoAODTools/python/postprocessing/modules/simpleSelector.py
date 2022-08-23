@@ -31,7 +31,10 @@ class simpleSelector(Module):
         if self.sel == 'one photon':
           if len(photons) == 0 : return False
         if self.sel == 'muon electron photon':
-          if len(muons) == 0 and len(electrons) == 0 and len(photons) == 0: return False
+          if len(muons) > 0 and muons[0].pt > 15: return True
+          if len(electrons) > 0 and electrons[0].pt > 15: return True
+          if len(photons) > 0 and photons[0].pt > 15: return True
+          return False
         return True
 
 selectionConstr_default = lambda: simpleSelector()
