@@ -174,6 +174,12 @@ class twoprongModule(Module):
               TwoProng_nTracks.append(2 if extraTrackIndex==-1 else 3)
         # loop over pfcands finished
 
+        # sort twoprong collections
+        if not self.addLoose:
+          TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta = (list(t) for t in zip(*sorted(zip(TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta), reverse=True)))
+        else:
+          pass
+
         # fill branches
         nTwoProng = len(TwoProng_pt)
         self.out.fillBranch("nTwoProng", nTwoProng)
