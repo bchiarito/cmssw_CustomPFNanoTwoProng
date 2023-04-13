@@ -43,7 +43,7 @@ class twoprongModule(Module):
           self.out.branch("TwoProng_passSym", "I", lenVar="nTwoProng")
           self.out.branch("TwoProng_isTight", "I", lenVar="nTwoProng")
         if self.optionalTrack:
-          self.out.branch("TwoProng_nTracks", "F", lenVar="nTwoProng")
+          self.out.branch("TwoProng_nTracks", "I", lenVar="nTwoProng")
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
@@ -171,15 +171,25 @@ class twoprongModule(Module):
               TwoProng_passSym.append(passSym)
               TwoProng_isTight.append(passIso and passSym)
             if self.optionalTrack:
-              TwoProng_nTracks.append(2 if extraTrackIndex==-1 else 3)
+              ntrack = 2 if extraTrackIndex==-1 else 3
+              TwoProng_nTracks.append(ntrack)
         # loop over pfcands finished
 
         # sort twoprong collections
-        if not self.addLoose:
-          TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta = (list(t) for t in zip(*sorted(zip(TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta), reverse=True)))
-        else:
-          pass
-
+        if len(TwoProng_pt)>0:
+          if not self.addLoose and not self.optionalTrack:
+            sortedvars = zip(*sorted(zip(TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta), reverse=True))
+            lists = (list(t) for t in sortedvars)
+            TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta = lists
+          if self.addLoose and not self.optionalTrack:
+            sortedvars = zip(*sorted(zip(TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta, TwoProng_chargedIso, TwoProng_neutralIso, TwoProng_egammaIso, TwoProng_trackSym, TwoProng_photonSym, TwoProng_passIso, TwoProng_passSym, TwoProng_isTight), reverse=True))
+            lists = (list(t) for t in sortedvars)
+            TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta, TwoProng_chargedIso, TwoProng_neutralIso, TwoProng_egammaIso, TwoProng_trackSym, TwoProng_photonSym, TwoProng_passIso, TwoProng_passSym, TwoProng_isTight = lists
+          if self.addLoose and self.optionalTrack:
+            sortedvars = zip(*sorted(zip(TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta, TwoProng_chargedIso, TwoProng_neutralIso, TwoProng_egammaIso, TwoProng_trackSym, TwoProng_photonSym, TwoProng_passIso, TwoProng_passSym, TwoProng_isTight, TwoProng_nTracks), reverse=True))
+            lists = (list(t) for t in sortedvars)
+            TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta, TwoProng_chargedIso, TwoProng_neutralIso, TwoProng_egammaIso, TwoProng_trackSym, TwoProng_photonSym, TwoProng_passIso, TwoProng_passSym, TwoProng_isTight, TwoProng_nTracks = lists
+        
         # fill branches
         nTwoProng = len(TwoProng_pt)
         self.out.fillBranch("nTwoProng", nTwoProng)
