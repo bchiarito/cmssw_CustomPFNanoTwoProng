@@ -109,10 +109,10 @@ class twoprongModule(Module):
             chargedIso = 0
             neutralIso = 0
             egammaIso = 0
+            extraTrackIndex = -1
             for k in range(len(pfcands)):
               pfvec3 = pfcands[k].p4()
               pfvec3.SetPhi(pfcands[k].phiAtVtx)
-              extraTrackIndex = -1
               if center.DeltaR(pfvec3) > const_isolationCone : continue
               if (pfcands[k].fromPV <= 1) : continue
               if (abs(pfcands[k].pdgId) == 211 or abs(pfcands[k].pdgId) == 13):
@@ -135,7 +135,7 @@ class twoprongModule(Module):
             if self.optionalTrack and not extraTrackIndex == -1:
               # reform twoprong momentum with extra track
               extraTrack = pfcands[extraTrackIndex].p4()
-              extraTrack.setPhi(pfcands[extraTrackIndex].PhiAtVtx)
+              extraTrack.SetPhi(pfcands[extraTrackIndex].phiAtVtx)
               twoprong = center + photon + extraTrack
             passIso = True
             if chargedIso/twoprong.Pt() > const_chargedIsoCut : passIso = False
