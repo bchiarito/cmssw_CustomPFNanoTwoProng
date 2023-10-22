@@ -6,9 +6,9 @@ from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
 from PhysicsTools.NanoAOD.lheInfoTable_cfi import *
 from PhysicsTools.NanoAOD.genWeightsTable_cfi import *
-from PhysicsTools.NanoAOD.common_cff import Var,CandVars
 from PhysicsTools.NanoAOD.genVertex_cff import *
-from PhysicsTools.NanoAOD.common_cff import CandVars
+from PhysicsTools.NanoAOD.common_cff import Var,CandVars
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -26,10 +26,7 @@ nanogenSequence = cms.Sequence(
     genJetAK8Table+
     genJetAK8FlavourAssociation+
     genJetAK8FlavourTable+
-    tauGenJets+
-    tauGenJetsSelectorAllHadrons+
-    genVisTaus+
-    genVisTauTable+
+    genTauSequence+
     genTable+
     genParticleTables+
     genVertexTables+
@@ -58,18 +55,12 @@ def nanoGenCommonCustomize(process):
     setGenPtPrecision(process, CandVars.pt.precision)
     setGenEtaPrecision(process, CandVars.eta.precision)
     setGenPhiPrecision(process, CandVars.phi.precision)
+    setGenMassPrecision(process, CandVars.mass.precision)
 
 def customizeNanoGENFromMini(process):
     process.nanogenSequence.insert(0, process.genParticles2HepMCHiggsVtx)
     process.nanogenSequence.insert(0, process.genParticles2HepMC)
     process.nanogenSequence.insert(0, process.mergedGenParticles)
-
-    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-    from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
-    from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-    from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
-    from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
-    from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 
     (run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
         run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
@@ -87,7 +78,7 @@ def customizeNanoGENFromMini(process):
 
     process.genJetTable.src = "slimmedGenJets"
     process.genJetAK8Table.src = "slimmedGenJetsAK8"
-    process.tauGenJets.GenParticles = "prunedGenParticles"
+    process.tauGenJetsForNano.GenParticles = "prunedGenParticles"
     process.genVisTaus.srcGenParticles = "prunedGenParticles"
 
     nanoGenCommonCustomize(process)
@@ -105,7 +96,7 @@ def customizeNanoGEN(process):
 
     process.genJetTable.src = "ak4GenJets"
     process.genJetAK8Table.src = "ak8GenJets"
-    process.tauGenJets.GenParticles = "genParticles"
+    process.tauGenJetsForNano.GenParticles = "genParticles"
     process.genVisTaus.srcGenParticles = "genParticles"
 
     # In case customizeNanoGENFromMini has already been called
@@ -117,9 +108,8 @@ def customizeNanoGEN(process):
 
 # Prune gen particles with tight conditions applied in usual NanoAOD
 def pruneGenParticlesNano(process):
-    process.finalGenParticles = finalGenParticles.clone()
-    process.genParticleTable.src = "prunedGenParticles"
-    process.patJetPartons.particles = "prunedGenParticles"
+    process.finalGenParticles.src = process.genParticleTable.src.getModuleLabel()
+    process.genParticleTable.src = "finalGenParticles"
     process.nanogenSequence.insert(0, process.finalGenParticles)
     return process
 
@@ -130,15 +120,18 @@ def pruneGenParticlesMini(process):
             "Use a different customization.")
     from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import prunedGenParticles
     process.prunedGenParticles = prunedGenParticles.clone()
+    process.prunedGenParticles.src = "genParticles"
     process.genParticleTable.src = "prunedGenParticles"
-    process.patJetPartons.particles = "prunedGenParticles"
+
     process.nanogenSequence.insert(0, process.prunedGenParticles)
     return process
 
 def setGenFullPrecision(process):
-    setGenPtPrecision(process, 23)
-    setGenEtaPrecision(process, 23)
-    setGenPhiPrecision(process, 23)
+    process = setGenPtPrecision(process, 23)
+    process = setGenEtaPrecision(process, 23)
+    process = setGenPhiPrecision(process, 23)
+    process = setGenMassPrecision(process, 23)
+    return process
 
 def setGenPtPrecision(process, precision):
     process.genParticleTable.variables.pt.precision = precision
@@ -155,6 +148,11 @@ def setGenPhiPrecision(process, precision):
     process.genParticleTable.variables.phi.precision = precision
     process.genJetTable.variables.phi.precision = precision
     process.metMCTable.variables.phi.precision = precision
+    return process
+
+def setGenMassPrecision(process, precision):
+    process.genParticleTable.variables.mass.precision = precision
+    process.genJetTable.variables.mass.precision = precision
     return process
 
 def setLHEFullPrecision(process):
