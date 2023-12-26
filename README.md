@@ -1,8 +1,8 @@
 ### build instructions
 ```
 export SCRAM_ARCH=slc7_amd64_gcc820
-cmsrel CMSSW_10_6_20
-cd CMSSW_10_6_20/src
+cmsrel CMSSW_10_6_27
+cd CMSSW_10_6_27/src
 cmsenv
 git clone git@github.com:bchiarito/cmssw_CustomPFNanoTwoProng.git .
 scram b -j 10
@@ -22,12 +22,14 @@ python ../../../PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.roo
 
 ### build instructions from scratch
 ```
+export SCRAM_ARCH=slc7_amd64_gcc820
 cmsrel CMSSW_10_6_20
 cd CMSSW_10_6_20/src
 cmsenv
 git cms-rebase-topic andrzejnovak:614nosort
 git clone https://github.com/cms-jet/PFNano.git PhysicsTools/PFNano
 git clone https://github.com/cms-nanoAOD/nanoAOD-tools.git PhysicsTools/NanoAODTools
+git clone git@github.com:bchiarito/cmssw_CustomPFNanoTwoProng.git UnitTest/
 cp UnitTest/test/PFNano_tweaks/addPFCands_cff.py PhysicsTools/PFNano/python
 cp UnitTest/test/PFNano_tweaks/pfnano_cff.py PhysicsTools/PFNano/python
 cp UnitTest/test/PFNano_tweaks/photons_cff.py PhysicsTools/NanoAOD/python
