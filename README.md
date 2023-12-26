@@ -23,26 +23,25 @@ python ../../../PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.roo
 ### build instructions from scratch
 ```
 export SCRAM_ARCH=slc7_amd64_gcc820
-cmsrel CMSSW_10_6_20
-cd CMSSW_10_6_20/src
+cmsrel CMSSW_10_6_27
+cd CMSSW_10_6_27/src
 cmsenv
 git cms-rebase-topic andrzejnovak:614nosort
 git clone https://github.com/cms-jet/PFNano.git PhysicsTools/PFNano
 git clone https://github.com/cms-nanoAOD/nanoAOD-tools.git PhysicsTools/NanoAODTools
-
-cp UnitTest/test/PFNano_tweaks/addPFCands_cff.py PhysicsTools/PFNano/python
-cp UnitTest/test/PFNano_tweaks/pfnano_cff.py PhysicsTools/PFNano/python
-cp UnitTest/test/PFNano_tweaks/photons_cff.py PhysicsTools/NanoAOD/python
-cp UnitTest/test/PFNano_tweaks/genparticles_cff.py PhysicsTools/NanoAOD/python
-cp UnitTest/test/PFNano_tweaks/LHETablesProducer.cc PhysicsTools/NanoAOD/plugins
+mkdir temp
+cd temp
+git init
+git remote add -f origin origin https://github.com/bchiarito/cmssw_CustomPFNanoTwoProng.git
+git config core.sparseCheckout true
+echo "UnitTest/test/PFNano_tweaks" >> .git/info/sparse-checkout
+git pull origin master
+cd ..
+cp temp/UnitTest/test/PFNano_tweaks/addPFCands_cff.py PhysicsTools/PFNano/python
+cp temp/UnitTest/test/PFNano_tweaks/pfnano_cff.py PhysicsTools/PFNano/python
+cp temp/UnitTest/test/PFNano_tweaks/photons_cff.py PhysicsTools/NanoAOD/python
+cp temp/UnitTest/test/PFNano_tweaks/genparticles_cff.py PhysicsTools/NanoAOD/python
+cp temp/UnitTest/test/PFNano_tweaks/LHETablesProducer.cc PhysicsTools/NanoAOD/plugins
+rm -rf temp/
 scram b -j 10
 ```
-
-### all module constructors
-genpartConstr   res, nonres
-filtersConstr   UL18
-photonConstr    default, addLoose
-recoPhiConstr   cutBased, HPID
-selectionConstr default, muon, photon
-twoprongConstr  default, addLoose, optionalTrack, optionalTrack_addLoose
-
