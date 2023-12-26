@@ -34,7 +34,7 @@ git clone https://github.com/cms-nanoAOD/nanoAOD-tools.git PhysicsTools/NanoAODT
 mkdir temp
 cd temp
 git init
-git remote add -f origin origin https://github.com/bchiarito/cmssw_CustomPFNanoTwoProng.git
+git remote add -f origin https://github.com/bchiarito/cmssw_CustomPFNanoTwoProng.git
 git config core.sparseCheckout true
 echo "UnitTest/test/PFNano_tweaks" >> .git/info/sparse-checkout
 echo "PhysicsTools/NanoAODTools/python" >> .git/info/sparse-checkout
