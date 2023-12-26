@@ -8,16 +8,17 @@ git clone git@github.com:bchiarito/cmssw_CustomPFNanoTwoProng.git .
 scram b -j 10
 ```
 
-### unit testing
+### running PFNano step interactively
 ```
-UnitTest/test/
+cp /cms/chiarito/rootfiles/framework_unittest/MiniAOD.root .
+echo "file:MiniAOD.root" >> infile.txt
+cmsRun ../../PhysicsTools/PFNano/test/NANOAOD_XX_ULYY_cfg.py inputFilesFile=infile.txt maxEvents=10
 ```
 
-### running by hand
+### running NanoAODTools step interactively
 ```
-cd <base>/PhysicsTools/PFNano/test/
-cmsRun NANOAOD_$4_$5_cfg.py inputFilesFile=cmssw_infiles_$3.dat goodLumis=$6 maxEvents=-1
-python ../../../PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.root -I PhysicsTools.NanoAODTools.postprocessing.modules.twoprongModule myModuleConstr
+python ../../PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.root -I PhysicsTools.NanoAODTools.postprocessing.modules.main twoprongConstr_optionalTrack_addLoose,photonConstr_default,recoPhiConstr_HPID,recoPhiConstr_cutBased --bo ../../PhysicsTools/NanoAODTools/test/dropPF.txt
+python ../../PhysicsTools/NanoAODTools/test/copy_tree.py NanoAOD_Skim.root
 ```
 
 ### build instructions from scratch
