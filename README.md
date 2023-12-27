@@ -29,7 +29,7 @@ cd CMSSW_10_6_27/src
 cmsenv
 git cms-rebase-topic andrzejnovak:614nosort
 git clone https://github.com/cms-jet/PFNano.git PhysicsTools/PFNano
-git clone https://github.com/cms-jet/PFNano.git PhysicsTools/NanoAOD
+git cms-addpkg PhysicsTools/NanoAOD
 git clone https://github.com/cms-nanoAOD/nanoAOD-tools.git PhysicsTools/NanoAODTools
 mkdir temp
 cd temp
