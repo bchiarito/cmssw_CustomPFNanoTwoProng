@@ -52,8 +52,6 @@ cp temp/tweaks/pfnano_hacks/LHETablesProducer.cc PhysicsTools/NanoAOD/plugins
 cp temp/tweaks/pfnano_cfgs/NANOAOD_* PhysicsTools/PFNano/test/
 cp temp/tweaks/pfnano_cfgs/Cert_* PhysicsTools/PFNano/test/
 cp temp/tweaks/nanoaodtools_modules/* PhysicsTools/NanoAODTools/python/postprocessing/modules/
-cp temp/tweaks/PhysicsTools/NanoAODTools/python/photons_cff.py PhysicsTools/NanoAODTools/python/
-cp temp/PhysicsTools/NanoAODTools/python/genparticles_cff.py PhysicsTools/NanoAODTools/python/
 cp temp/tweaks/nanoaodtools_running/* PhysicsTools/NanoAODTools/test
 rm -rf temp/
 scram b -j 10
