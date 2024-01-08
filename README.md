@@ -40,7 +40,7 @@ echo "tweaks" >> .git/info/sparse-checkout
 git pull origin master
 cd ..
 mkdir -p PhysicsTools/NanoAODTools/test
-cp temp/tweaks/pfnano_backs/addPFCands_cff.py PhysicsTools/PFNano/python
+cp temp/tweaks/pfnano_hacks/addPFCands_cff.py PhysicsTools/PFNano/python
 cp temp/tweaks/pfnano_hacks/pfnano_cff.py PhysicsTools/PFNano/python
 cp temp/tweaks/pfnano_hacks/photons_cff.py PhysicsTools/NanoAOD/python
 cp temp/tweaks/pfnano_hacks/genparticles_cff.py PhysicsTools/NanoAOD/python
