@@ -1,0 +1,25 @@
+keep *
+# PF Cands
+drop nPFCands*
+drop PFCands*
+drop JetPFCands*
+drop nJetPFCands*
+drop FatJetPFCands*
+drop nFatJetPFCands*
+# Gen PF Cands
+drop GenCands*
+drop nGenCands*
+drop GenJetCands*
+drop nGenJetCands*
+drop GenFatJetCands*
+drop nGenFatJetCands*
+# SVs
+drop JetSVs*
+drop nJetSVs*
+drop FatJetSVs*
+drop nFatJetSV*
+# Gen SVs
+drop GenJetSVs*
+drop nGenJetSVs*
+drop GenFatJetSVs*
+drop nGenFatJetSVs

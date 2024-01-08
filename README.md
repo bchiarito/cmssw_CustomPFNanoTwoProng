@@ -40,25 +40,11 @@ echo "UnitTest/test/PFNano_tweaks" >> .git/info/sparse-checkout
 echo "PhysicsTools/NanoAODTools/python" >> .git/info/sparse-checkout
 echo "PhysicsTools/NanoAODTools/test" >> .git/info/sparse-checkout
 echo "PhysicsTools/PFNano/test/" >> .git/info/sparse-checkout
-
 echo "tweaks" >> .git/info/sparse-checkout
-
 git pull origin master
 cd ..
-cp temp/UnitTest/test/PFNano_tweaks/addPFCands_cff.py PhysicsTools/PFNano/python
-cp temp/UnitTest/test/PFNano_tweaks/pfnano_cff.py PhysicsTools/PFNano/python
-cp temp/UnitTest/test/PFNano_tweaks/photons_cff.py PhysicsTools/NanoAOD/python
-cp temp/UnitTest/test/PFNano_tweaks/genparticles_cff.py PhysicsTools/NanoAOD/python
-cp temp/UnitTest/test/PFNano_tweaks/LHETablesProducer.cc PhysicsTools/NanoAOD/plugins
-cp temp/PhysicsTools/PFNano/test/NANOAOD_* PhysicsTools/PFNano/test/
-cp temp/PhysicsTools/PFNano/test/Cert_* PhysicsTools/PFNano/test/
-cp temp/PhysicsTools/NanoAODTools/python/photons_cff.py PhysicsTools/NanoAODTools/python/
-cp temp/PhysicsTools/NanoAODTools/python/genparticles_cff.py PhysicsTools/NanoAODTools/python/
-cp temp/PhysicsTools/NanoAODTools/python/postprocessing/modules/*.py PhysicsTools/NanoAODTools/python/postprocessing/modules/
-cp -r temp/PhysicsTools/NanoAODTools/test/ PhysicsTools/NanoAODTools
-
 mkdir -p PhysicsTools/NanoAODTools/test
-cp temp/tweaks/pfnano_backs/addPFCands_cff.py PhysicsTools/PFNano/python
+cp temp/tweaks/pfnano_hacks/addPFCands_cff.py PhysicsTools/PFNano/python
 cp temp/tweaks/pfnano_hacks/pfnano_cff.py PhysicsTools/PFNano/python
 cp temp/tweaks/pfnano_hacks/photons_cff.py PhysicsTools/NanoAOD/python
 cp temp/tweaks/pfnano_hacks/genparticles_cff.py PhysicsTools/NanoAOD/python
@@ -69,7 +55,6 @@ cp temp/tweaks/nanoaodtools_modules/* PhysicsTools/NanoAODTools/python/postproce
 cp temp/tweaks/PhysicsTools/NanoAODTools/python/photons_cff.py PhysicsTools/NanoAODTools/python/
 cp temp/PhysicsTools/NanoAODTools/python/genparticles_cff.py PhysicsTools/NanoAODTools/python/
 cp temp/tweaks/nanoaodtools_running/* PhysicsTools/NanoAODTools/test
-
 rm -rf temp/
 scram b -j 10
 ```
