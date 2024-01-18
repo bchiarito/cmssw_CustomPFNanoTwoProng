@@ -17,7 +17,7 @@ cmsRun PhysicsTools/PFNano/test/NANOAOD_XX_ULYY_cfg.py inputFilesFile=infile.txt
 
 ### running NanoAODTools step interactively
 ```
-python PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.root -I PhysicsTools.NanoAODTools.postprocessing.modules.main twoprongConstr_optionalTrack_addLoose,photonConstr_default,recoPhiConstr_HPID,recoPhiConstr_cutBased --bo ../../PhysicsTools/NanoAODTools/test/dropPF.txt
+python PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.root -I PhysicsTools.NanoAODTools.postprocessing.modules.main twoprongConstr_optionalTrack_addLoose,photonConstr_default,recoPhiConstr_HPID,recoPhiConstr_cutBased --bo PhysicsTools/NanoAODTools/test/dropPF.txt
 python PhysicsTools/NanoAODTools/test/copy_tree.py NanoAOD_Skim.root
 ```
 
