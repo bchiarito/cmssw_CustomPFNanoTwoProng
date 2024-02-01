@@ -1,1 +1,3 @@
 *.pyc
+*.tgz
+__init__.py

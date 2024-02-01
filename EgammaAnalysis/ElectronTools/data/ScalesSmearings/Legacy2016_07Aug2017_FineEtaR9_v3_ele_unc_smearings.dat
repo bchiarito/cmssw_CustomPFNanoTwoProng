@@ -1,0 +1,7 @@
+#category          Emean   err_Emean  rho       err_rho  phi     err_phi
+absEta_0_1         6.5486  0          0.010546  0.00005  M_PI_2  M_PI_2
+absEta_1_1.2       6.5646  0          0.016542  0.00011  M_PI_2  M_PI_2
+absEta_1.2_1.4442  6.5926  0          0.021225  0.00011  M_PI_2  M_PI_2
+absEta_1.566_2     6.5151  0          0.021482  0.00007  M_PI_2  M_PI_2
+absEta_2_2.5       6.5010  0          0.026034  0.00006  M_PI_2  M_PI_2
+
