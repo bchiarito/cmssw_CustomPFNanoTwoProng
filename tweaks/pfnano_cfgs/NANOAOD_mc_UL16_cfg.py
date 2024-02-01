@@ -9,6 +9,7 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ("python")
 options.register("inputFilesFile", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "")
 options.register("goodLumis", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "")
+options.register("photonsf", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "")
 options.setDefault("maxEvents", -1)
 options.parseArguments()
 from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
@@ -113,6 +114,17 @@ process = PFnano_customizeMC_allPF(process)
 #process = PFnano_customizeMC_AK4JetsOnly(process)
 #process = PFnano_customizeMC_AK8JetsOnly(process)
 #process = PFnano_customizeMC_noInputs(process)
+
+##########
+# For scale factors
+if options.photonsf:
+  from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+  setupEgammaPostRecoSeq(process,
+                         runEnergyCorrections=True,
+                         runVID=False, #saves CPU time by not needlessly re-running VID, if you want the Fall17V2 IDs, set this to True or remove (default is True)
+                         era='2018-UL')    
+  #a sequence egammaPostRecoSeq has now been created and should be added to your path, eg process.p=cms.Path(process.egammaPostRecoSeq)
+###########
 
 # End of customisation functions
 
