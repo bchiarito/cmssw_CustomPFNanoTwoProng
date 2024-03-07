@@ -9,6 +9,7 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ("python")
 options.register("inputFilesFile", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "")
 options.register("goodLumis", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "")
+options.register("skipEvents", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "")
 options.setDefault("maxEvents", -1)
 options.parseArguments()
 
@@ -54,7 +55,8 @@ else:
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( readFiles ),
     secondaryFileNames = cms.untracked.vstring(),
-    duplicateCheckMode = cms.untracked.string("checkEachRealDataFile")
+    duplicateCheckMode = cms.untracked.string("checkEachRealDataFile"),
+    skipEvents = cms.untracked.uint32(options.skipEvents)
 )
 if not options.goodLumis=="" and not options.goodLumis=="None":
   import FWCore.PythonUtilities.LumiList as LumiList
