@@ -9,7 +9,8 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ("python")
 options.register("inputFilesFile", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "")
 options.register("goodLumis", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "")
-options.register("skipEvents", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "")
+options.register("numof", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "")
+options.register("totalforfile", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "")
 options.setDefault("maxEvents", -1)
 options.parseArguments()
 
@@ -29,34 +30,49 @@ process.load('PhysicsTools.NanoAOD.nano_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(options.maxEvents)
-)
-
 # Log Messages
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
-# Input source
+# process input
 readFiles = []
 if options.inputFilesFile == "":
   readFiles.extend(['file:miniAOD_numEvent10.root'])
 else:
   with open(options.inputFilesFile) as fi:
     for line in fi:
-      # process line if .dat
+      # take filename and add "file:" .dat
       if options.inputFilesFile[-4:] == '.dat':
         newline = line.strip()
-        i = newline.rfind('/')
-        newline = newline[i+1:len(line)]
-        readFiles.append('file:'+newline)
-      # dont process for .txt
+        location, numof, totalforfile = newline.split()
+        i = location.rfind('/')
+        location = location[i+1:len(line)]
+        readFiles.append('file:'+location)
+      # leave as is for .txt
       if options.inputFilesFile[-4:] == '.txt':
-        readFiles.append(line.strip())
+        newline = line.strip()
+        location, numof, totalforfile = newline.split()
+        readFiles.append(location)
+
+if numof==1 and totalforfile==1:
+  maxevents = -1
+  skipevents = 0
+elif numof == totalforfile:
+  maxevents = round(float(options.maxEvents) / float(totalforfile))
+  skipevents = maxevents * (numof - 1)
+  maxevents = -1
+else:
+  maxevents = round(float(options.maxEvents) / float(totalforfile))
+  skipevents = maxevents * (numof - 1)
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(maxevents)
+)
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( readFiles ),
     secondaryFileNames = cms.untracked.vstring(),
     duplicateCheckMode = cms.untracked.string("checkEachRealDataFile"),
-    skipEvents = cms.untracked.uint32(options.skipEvents)
+    skipEvents = cms.untracked.uint32(skipevents)
 )
 if not options.goodLumis=="" and not options.goodLumis=="None":
   import FWCore.PythonUtilities.LumiList as LumiList
