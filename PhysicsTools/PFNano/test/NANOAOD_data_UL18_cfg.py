@@ -47,6 +47,8 @@ else:
         i = location.rfind('/')
         location = location[i+1:len(location)]
         readFiles.append('file:'+location)
+        print(newline)
+        print(location, numof, totalforfile)
       # leave as is for .txt
       if options.inputFilesFile[-4:] == '.txt':
         newline = line.strip()
