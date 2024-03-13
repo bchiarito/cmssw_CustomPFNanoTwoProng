@@ -68,7 +68,7 @@ process.maxEvents = cms.untracked.PSet(
     #input = cms.untracked.int32(maxevents)
     input = cms.untracked.int32(10)
 )
-
+print(readFiles)
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( readFiles ),
     secondaryFileNames = cms.untracked.vstring(),
