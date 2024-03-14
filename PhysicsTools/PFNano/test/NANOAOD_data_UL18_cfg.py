@@ -31,7 +31,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 # Log Messages
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 # process input
 readFiles = []
@@ -44,39 +44,39 @@ else:
       if options.inputFilesFile[-4:] == '.dat':
         newline = line.strip()
         location, numof, totalforfile = newline.split()
+        numof = int(numof)
+        totalforfile = int(totalforfile)
         i = location.rfind('/')
         location = location[i+1:len(location)]
         readFiles.append('file:'+location)
-        print(newline)
-        print(location, numof, totalforfile)
       # leave as is for .txt
       if options.inputFilesFile[-4:] == '.txt':
         newline = line.strip()
         location, numof, totalforfile = newline.split()
+        numof = int(numof)
+        totalforfile = int(totalforfile)
         readFiles.append(location)
 
+# compute skips
 if numof==1 and totalforfile==1:
   maxevents = -1
   skipevents = 0
 elif numof == totalforfile:
-  maxevents = round(float(options.maxEvents) / float(totalforfile))
-  skipevents = maxevents * (numof - 1)
+  maxevents = int(round(float(options.maxEvents) / float(totalforfile)))
+  skipevents = int(maxevents * (numof - 1))
   maxevents = -1
 else:
-  maxevents = round(float(options.maxEvents) / float(totalforfile))
-  skipevents = maxevents * (numof - 1)
+  maxevents = int(round(float(options.maxEvents) / float(totalforfile)))
+  skipevents = int(maxevents * (numof - 1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(maxevents) )
 
-process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(maxevents)
-    input = cms.untracked.int32(10)
-)
-print(readFiles)
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( readFiles ),
     secondaryFileNames = cms.untracked.vstring(),
     duplicateCheckMode = cms.untracked.string("checkEachRealDataFile"),
     skipEvents = cms.untracked.uint32(skipevents)
 )
+
 if not options.goodLumis=="" and not options.goodLumis=="None":
   import FWCore.PythonUtilities.LumiList as LumiList
   process.source.lumisToProcess = LumiList.LumiList(filename = options.goodLumis).getVLuminosityBlockRange()
