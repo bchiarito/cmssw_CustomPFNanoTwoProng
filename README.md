@@ -11,7 +11,7 @@ scram b -j 10
 ### running PFNano step interactively
 ```
 cp /cms/chiarito/rootfiles/framework_unittest/MiniAOD.root .
-echo "file:MiniAOD.root" >> infile.txt
+echo "file:MiniAOD.root 1 1" >> infile.txt
 cmsRun PhysicsTools/PFNano/test/NANOAOD_XX_ULYY_cfg.py inputFilesFile=infile.txt maxEvents=10
 ```
 
