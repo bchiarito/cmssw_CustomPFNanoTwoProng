@@ -33,6 +33,20 @@ class twoprongModule(Module):
         self.out.branch("TwoProng_massl", "F", lenVar="nTwoProng")
         self.out.branch("TwoProng_massPi0", "F", lenVar="nTwoProng")
         self.out.branch("TwoProng_massEta", "F", lenVar="nTwoProng")
+
+        self.out.branch("TwoProng_CHpos_pt", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_CHpos_eta", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_CHpos_phi", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_CHpos_mass", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_CHneg_pt", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_CHneg_eta", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_CHneg_phi", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_CHneg_mass", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_neutral_pt", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_neutral_eta", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_neutral_phi", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_neutral_mass", "F", lenVar="nTwoProng")
+
         if self.addLoose:
           self.out.branch("TwoProng_chargedIso", "F", lenVar="nTwoProng")
           self.out.branch("TwoProng_neutralIso", "F", lenVar="nTwoProng")
@@ -44,6 +58,12 @@ class twoprongModule(Module):
           self.out.branch("TwoProng_isTight", "I", lenVar="nTwoProng")
         if self.optionalTrack:
           self.out.branch("TwoProng_nTracks", "I", lenVar="nTwoProng")
+
+          self.out.branch("TwoProng_CHextra_pt", "F", lenVar="nTwoProng")
+          self.out.branch("TwoProng_CHextra_eta", "F", lenVar="nTwoProng")
+          self.out.branch("TwoProng_CHextra_phi", "F", lenVar="nTwoProng")
+          self.out.branch("TwoProng_CHextra_mass", "F", lenVar="nTwoProng")
+          self.out.branch("TwoProng_CHextra_charge", "F", lenVar="nTwoProng")
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
@@ -62,7 +82,20 @@ class twoprongModule(Module):
         TwoProng_massl = []
         TwoProng_massPi0 = []
         TwoProng_massEta = []
-        TwoProng_nTracks = []
+
+        TwoProng_CHpos_pt = []
+        TwoProng_CHpos_eta = []
+        TwoProng_CHpos_phi = []
+        TwoProng_CHpos_mass = []
+        TwoProng_CHneg_pt = []
+        TwoProng_CHneg_eta = []
+        TwoProng_CHneg_phi = []
+        TwoProng_CHneg_mass = []
+        TwoProng_neutral_pt = []
+        TwoProng_neutral_eta = []
+        TwoProng_neutral_phi = []
+        TwoProng_neutral_mass = []
+
         if self.addLoose:
           TwoProng_chargedIso = []
           TwoProng_neutralIso = []
@@ -72,6 +105,14 @@ class twoprongModule(Module):
           TwoProng_passIso = []
           TwoProng_passSym = []
           TwoProng_isTight = []
+
+        if self.optionalTrack:
+          TwoProng_nTracks = []
+          TwoProng_CHextra_pt = []
+          TwoProng_CHextra_eta = []
+          TwoProng_CHextra_phi = []
+          TwoProng_CHextra_mass = []
+          TwoProng_CHextra_charge = []
 
         # loop over pf cands
         for i in range(len(pfcands)):
@@ -153,14 +194,36 @@ class twoprongModule(Module):
             if math.fabs(twoprong.Eta()) > const_maxEta : continue
             if not self.addLoose and not passIso: continue
             if not self.addLoose and not passSym: continue
+            #
+            pfvec2 = pfcands[j].p4()
+            pfvec2.SetPhi(pfcands[j].phiAtVtx)
+            if (pfcands[i].pdgId == 211):
+              chpos = pfvec1
+              chneg = pfvec2
+            else:
+              chpos = pfvec2
+              chneg = pfvec1
+            neutral = photon
             # finished, store
-            TwoProng_pt.append(twoprong.Pt())            
-            TwoProng_phi.append(twoprong.Phi())            
+            TwoProng_pt.append(twoprong.Pt())
+            TwoProng_phi.append(twoprong.Phi())
             TwoProng_eta.append(twoprong.Eta())
-            TwoProng_mass.append(twoprong.M())            
-            TwoProng_massl.append((center+leading_pf_photon).M())            
+            TwoProng_mass.append(twoprong.M())
+            TwoProng_massl.append((center+leading_pf_photon).M())
             TwoProng_massPi0.append((center+photonPi0).M())
-            TwoProng_massEta.append((center+photonEta).M())            
+            TwoProng_massEta.append((center+photonEta).M())
+            TwoProng_CHpos_pt.append(chpos.Pt())
+            TwoProng_CHpos_eta.append(chpos.Eta())
+            TwoProng_CHpos_phi.append(chpos.Phi())
+            TwoProng_CHpos_mass.append(chpos.M())
+            TwoProng_CHneg_pt.append(chneg.Pt())
+            TwoProng_CHneg_eta.append(chneg.Eta())
+            TwoProng_CHneg_phi.append(chneg.Phi())
+            TwoProng_CHneg_mass.append(chneg.M())
+            TwoProng_neutral_pt.append(neutral.Pt())
+            TwoProng_neutral_eta.append(neutral.Eta())
+            TwoProng_neutral_phi.append(neutral.Phi())
+            TwoProng_neutral_mass.append(neutral.M())
             if self.addLoose:
               TwoProng_chargedIso.append(chargedIso/twoprong.Pt())
               TwoProng_neutralIso.append(neutralIso/twoprong.Pt())
@@ -171,8 +234,21 @@ class twoprongModule(Module):
               TwoProng_passSym.append(passSym)
               TwoProng_isTight.append(passIso and passSym)
             if self.optionalTrack:
-              ntrack = 2 if extraTrackIndex==-1 else 3
-              TwoProng_nTracks.append(ntrack)
+              if extraTrackIndex == -1:
+                TwoProng_nTracks.append(2)
+                TwoProng_CHextra_pt.append(-1000.0)
+                TwoProng_CHextra_eta.append(-1000.0)
+                TwoProng_CHextra_phi.append(-1000.0)
+                TwoProng_CHextra_mass.append(-1000.0)
+                TwoProng_CHextra_charge.append(1000.0)
+              else:
+                chextra = extraTrack
+                TwoProng_nTracks.append(3)
+                TwoProng_CHextra_pt.append(chextra.Pt())
+                TwoProng_CHextra_eta.append(chextra.Eta())
+                TwoProng_CHextra_phi.append(chextra.Phi())
+                TwoProng_CHextra_mass.append(chextra.M())
+                TwoProng_CHextra_charge.append(pfcands[extraTrackIndex].charge)
         # loop over pfcands finished
 
         # sort twoprong collections
@@ -200,6 +276,20 @@ class twoprongModule(Module):
         self.out.fillBranch("TwoProng_massl", TwoProng_massl)
         self.out.fillBranch("TwoProng_massPi0", TwoProng_massPi0)
         self.out.fillBranch("TwoProng_massEta", TwoProng_massEta)
+
+        self.out.fillBranch("TwoProng_CHpos_pt", TwoProng_CHpos_pt)
+        self.out.fillBranch("TwoProng_CHpos_eta", TwoProng_CHpos_eta)
+        self.out.fillBranch("TwoProng_CHpos_phi", TwoProng_CHpos_phi)
+        self.out.fillBranch("TwoProng_CHpos_mass", TwoProng_CHpos_mass)
+        self.out.fillBranch("TwoProng_CHneg_pt", TwoProng_CHneg_pt)
+        self.out.fillBranch("TwoProng_CHneg_eta", TwoProng_CHneg_eta)
+        self.out.fillBranch("TwoProng_CHneg_phi", TwoProng_CHneg_phi)
+        self.out.fillBranch("TwoProng_CHneg_mass", TwoProng_CHneg_mass)
+        self.out.fillBranch("TwoProng_neutral_pt", TwoProng_neutral_pt)
+        self.out.fillBranch("TwoProng_neutral_eta", TwoProng_neutral_eta)
+        self.out.fillBranch("TwoProng_neutral_phi", TwoProng_neutral_phi)
+        self.out.fillBranch("TwoProng_neutral_mass", TwoProng_neutral_mass)
+
         if self.addLoose:
           self.out.fillBranch("TwoProng_chargedIso", TwoProng_chargedIso)
           self.out.fillBranch("TwoProng_neutralIso", TwoProng_neutralIso)
@@ -211,6 +301,11 @@ class twoprongModule(Module):
           self.out.fillBranch("TwoProng_isTight", TwoProng_isTight)
         if self.optionalTrack:
           self.out.fillBranch("TwoProng_nTracks", TwoProng_nTracks)
+          self.out.fillBranch("TwoProng_CHextra_pt", TwoProng_CHextra_pt)
+          self.out.fillBranch("TwoProng_CHextra_eta", TwoProng_CHextra_eta)
+          self.out.fillBranch("TwoProng_CHextra_phi", TwoProng_CHextra_phi)
+          self.out.fillBranch("TwoProng_CHextra_mass", TwoProng_CHextra_mass)
+          self.out.fillBranch("TwoProng_CHextra_charge", TwoProng_CHextra_charge)
         return True
 
 
