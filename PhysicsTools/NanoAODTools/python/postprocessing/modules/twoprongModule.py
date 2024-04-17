@@ -252,20 +252,50 @@ class twoprongModule(Module):
         # loop over pfcands finished
 
         # sort twoprong collections
-        if len(TwoProng_pt)>0:
-          if not self.addLoose and not self.optionalTrack:
-            sortedvars = zip(*sorted(zip(TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta), reverse=True))
-            lists = (list(t) for t in sortedvars)
-            TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta = lists
-          if self.addLoose and not self.optionalTrack:
-            sortedvars = zip(*sorted(zip(TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta, TwoProng_chargedIso, TwoProng_neutralIso, TwoProng_egammaIso, TwoProng_trackSym, TwoProng_photonSym, TwoProng_passIso, TwoProng_passSym, TwoProng_isTight), reverse=True))
-            lists = (list(t) for t in sortedvars)
-            TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta, TwoProng_chargedIso, TwoProng_neutralIso, TwoProng_egammaIso, TwoProng_trackSym, TwoProng_photonSym, TwoProng_passIso, TwoProng_passSym, TwoProng_isTight = lists
-          if self.addLoose and self.optionalTrack:
-            sortedvars = zip(*sorted(zip(TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta, TwoProng_chargedIso, TwoProng_neutralIso, TwoProng_egammaIso, TwoProng_trackSym, TwoProng_photonSym, TwoProng_passIso, TwoProng_passSym, TwoProng_isTight, TwoProng_nTracks), reverse=True))
-            lists = (list(t) for t in sortedvars)
-            TwoProng_pt, TwoProng_eta, TwoProng_phi, TwoProng_mass, TwoProng_massl, TwoProng_massPi0, TwoProng_massEta, TwoProng_chargedIso, TwoProng_neutralIso, TwoProng_egammaIso, TwoProng_trackSym, TwoProng_photonSym, TwoProng_passIso, TwoProng_passSym, TwoProng_isTight, TwoProng_nTracks = lists
-        
+        if len(TwoProng_pt)>1:
+          twoprong_branches = [
+            TwoProng_eta,
+            TwoProng_phi,
+            TwoProng_mass,
+            TwoProng_massl,
+            TwoProng_massPi0,
+            TwoProng_massEta,
+            TwoProng_CHpos_pt,
+            TwoProng_CHpos_eta,
+            TwoProng_CHpos_phi,
+            TwoProng_CHpos_mass,
+            TwoProng_CHneg_pt,
+            TwoProng_CHneg_eta,
+            TwoProng_CHneg_phi,
+            TwoProng_CHneg_mass,
+            TwoProng_neutral_pt,
+            TwoProng_neutral_eta,
+            TwoProng_neutral_phi,
+            TwoProng_neutral_mass,
+          ]
+          if self.addLoose: twoprong_branches.extend([
+            TwoProng_chargedIso,
+            TwoProng_neutralIso,
+            TwoProng_egammaIso,
+            TwoProng_trackSym,
+            TwoProng_photonSym,
+            TwoProng_passIso,
+            TwoProng_passSym,
+            TwoProng_isTight,
+          ])
+          if self.optionalTrack: twoprong_branches.extend([
+            TwoProng_nTracks,
+            TwoProng_CHextra_pt,
+            TwoProng_CHextra_eta,
+            TwoProng_CHextra_phi,
+            TwoProng_CHextra_mass,
+            TwoProng_CHextra_charge,
+          ])
+          for branch in twoprong_branches:
+              lookup = dict(( (el, TwoProng_pt[branch.index(el)]) for el in branch))
+              branch.sort(key = lookup.__getitem__, reverse=True)
+          TwoProng_pt.sort(reverse=True)
+
         # fill branches
         nTwoProng = len(TwoProng_pt)
         self.out.fillBranch("nTwoProng", nTwoProng)
@@ -276,7 +306,6 @@ class twoprongModule(Module):
         self.out.fillBranch("TwoProng_massl", TwoProng_massl)
         self.out.fillBranch("TwoProng_massPi0", TwoProng_massPi0)
         self.out.fillBranch("TwoProng_massEta", TwoProng_massEta)
-
         self.out.fillBranch("TwoProng_CHpos_pt", TwoProng_CHpos_pt)
         self.out.fillBranch("TwoProng_CHpos_eta", TwoProng_CHpos_eta)
         self.out.fillBranch("TwoProng_CHpos_phi", TwoProng_CHpos_phi)
