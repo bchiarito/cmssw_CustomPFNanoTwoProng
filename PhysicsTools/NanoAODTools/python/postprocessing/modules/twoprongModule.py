@@ -10,7 +10,10 @@ class twoprongModule(Module):
     def __init__(self, addLoose=False, optionalTrack=False):
         self.addLoose = addLoose
         self.optionalTrack = optionalTrack
-        pass
+        if not self.optionalTrack:
+          self.label = "TwoProng"
+        else:
+          self.label = "TwoProngModified"
 
     def mygetattr(self, my_obj, my_branch, default_bool):
         try: getattr(my_obj, my_branch)
@@ -25,45 +28,42 @@ class twoprongModule(Module):
 
     def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         self.out = wrappedOutputTree
-        self.out.branch("nTwoProng", "I")
-        self.out.branch("TwoProng_pt", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_eta", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_phi", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_mass", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_massl", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_massPi0", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_massEta", "F", lenVar="nTwoProng")
-
-        self.out.branch("TwoProng_CHpos_pt", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_CHpos_eta", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_CHpos_phi", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_CHpos_mass", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_CHneg_pt", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_CHneg_eta", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_CHneg_phi", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_CHneg_mass", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_neutral_pt", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_neutral_eta", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_neutral_phi", "F", lenVar="nTwoProng")
-        self.out.branch("TwoProng_neutral_mass", "F", lenVar="nTwoProng")
-
-        if self.addLoose:
-          self.out.branch("TwoProng_chargedIso", "F", lenVar="nTwoProng")
-          self.out.branch("TwoProng_neutralIso", "F", lenVar="nTwoProng")
-          self.out.branch("TwoProng_egammaIso", "F", lenVar="nTwoProng")
-          self.out.branch("TwoProng_trackSym", "F", lenVar="nTwoProng")
-          self.out.branch("TwoProng_photonSym", "F", lenVar="nTwoProng")
-          self.out.branch("TwoProng_passIso", "I", lenVar="nTwoProng")
-          self.out.branch("TwoProng_passSym", "I", lenVar="nTwoProng")
-          self.out.branch("TwoProng_isTight", "I", lenVar="nTwoProng")
+        self.out.branch("n"+self.label+"", "I")
+        self.out.branch(""+self.label+"_pt", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_eta", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_phi", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_mass", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_massl", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_massPi0", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_massEta", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_CHpos_pt", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_CHpos_eta", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_CHpos_phi", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_CHpos_mass", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_CHneg_pt", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_CHneg_eta", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_CHneg_phi", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_CHneg_mass", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_neutral_pt", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_neutral_eta", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_neutral_phi", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_neutral_mass", "F", lenVar="n"+self.label+"")
         if self.optionalTrack:
-          self.out.branch("TwoProng_nTracks", "I", lenVar="nTwoProng")
-
-          self.out.branch("TwoProng_CHextra_pt", "F", lenVar="nTwoProng")
-          self.out.branch("TwoProng_CHextra_eta", "F", lenVar="nTwoProng")
-          self.out.branch("TwoProng_CHextra_phi", "F", lenVar="nTwoProng")
-          self.out.branch("TwoProng_CHextra_mass", "F", lenVar="nTwoProng")
-          self.out.branch("TwoProng_CHextra_charge", "F", lenVar="nTwoProng")
+          self.out.branch(""+self.label+"Modified_nTracks", "I", lenVar="n"+self.label+"Modified")
+          self.out.branch(""+self.label+"Modified_CHextra_pt", "F", lenVar="n"+self.label+"Modified")
+          self.out.branch(""+self.label+"Modified_CHextra_eta", "F", lenVar="n"+self.label+"Modified")
+          self.out.branch(""+self.label+"Modified_CHextra_phi", "F", lenVar="n"+self.label+"Modified")
+          self.out.branch(""+self.label+"Modified_CHextra_mass", "F", lenVar="n"+self.label+"Modified")
+          self.out.branch(""+self.label+"Modified_CHextra_charge", "F", lenVar="n"+self.label+"Modified")
+        if self.addLoose:
+          self.out.branch(""+self.label+"_chargedIso", "F", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_neutralIso", "F", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_egammaIso", "F", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_trackSym", "F", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_photonSym", "F", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_passIso", "I", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_passSym", "I", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_isTight", "I", lenVar="n"+self.label+"")
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
@@ -72,7 +72,6 @@ class twoprongModule(Module):
         """process event, return True (go to next module) or False (fail, go to next event)"""
         jets = Collection(event, "Jet")
         pfcands = Collection(event, "PFCands")
-        flags = Object(event, "Flag")
 
         # per event vectors
         TwoProng_pt = []
@@ -82,7 +81,6 @@ class twoprongModule(Module):
         TwoProng_massl = []
         TwoProng_massPi0 = []
         TwoProng_massEta = []
-
         TwoProng_CHpos_pt = []
         TwoProng_CHpos_eta = []
         TwoProng_CHpos_phi = []
@@ -95,7 +93,13 @@ class twoprongModule(Module):
         TwoProng_neutral_eta = []
         TwoProng_neutral_phi = []
         TwoProng_neutral_mass = []
-
+        if self.optionalTrack:
+          TwoProng_nTracks = []
+          TwoProng_CHextra_pt = []
+          TwoProng_CHextra_eta = []
+          TwoProng_CHextra_phi = []
+          TwoProng_CHextra_mass = []
+          TwoProng_CHextra_charge = []
         if self.addLoose:
           TwoProng_chargedIso = []
           TwoProng_neutralIso = []
@@ -106,13 +110,6 @@ class twoprongModule(Module):
           TwoProng_passSym = []
           TwoProng_isTight = []
 
-        if self.optionalTrack:
-          TwoProng_nTracks = []
-          TwoProng_CHextra_pt = []
-          TwoProng_CHextra_eta = []
-          TwoProng_CHextra_phi = []
-          TwoProng_CHextra_mass = []
-          TwoProng_CHextra_charge = []
 
         # loop over pf cands
         for i in range(len(pfcands)):
@@ -298,43 +295,42 @@ class twoprongModule(Module):
 
         # fill branches
         nTwoProng = len(TwoProng_pt)
-        self.out.fillBranch("nTwoProng", nTwoProng)
-        self.out.fillBranch("TwoProng_pt", TwoProng_pt)
-        self.out.fillBranch("TwoProng_eta", TwoProng_eta)
-        self.out.fillBranch("TwoProng_phi", TwoProng_phi)
-        self.out.fillBranch("TwoProng_mass", TwoProng_mass)
-        self.out.fillBranch("TwoProng_massl", TwoProng_massl)
-        self.out.fillBranch("TwoProng_massPi0", TwoProng_massPi0)
-        self.out.fillBranch("TwoProng_massEta", TwoProng_massEta)
-        self.out.fillBranch("TwoProng_CHpos_pt", TwoProng_CHpos_pt)
-        self.out.fillBranch("TwoProng_CHpos_eta", TwoProng_CHpos_eta)
-        self.out.fillBranch("TwoProng_CHpos_phi", TwoProng_CHpos_phi)
-        self.out.fillBranch("TwoProng_CHpos_mass", TwoProng_CHpos_mass)
-        self.out.fillBranch("TwoProng_CHneg_pt", TwoProng_CHneg_pt)
-        self.out.fillBranch("TwoProng_CHneg_eta", TwoProng_CHneg_eta)
-        self.out.fillBranch("TwoProng_CHneg_phi", TwoProng_CHneg_phi)
-        self.out.fillBranch("TwoProng_CHneg_mass", TwoProng_CHneg_mass)
-        self.out.fillBranch("TwoProng_neutral_pt", TwoProng_neutral_pt)
-        self.out.fillBranch("TwoProng_neutral_eta", TwoProng_neutral_eta)
-        self.out.fillBranch("TwoProng_neutral_phi", TwoProng_neutral_phi)
-        self.out.fillBranch("TwoProng_neutral_mass", TwoProng_neutral_mass)
-
-        if self.addLoose:
-          self.out.fillBranch("TwoProng_chargedIso", TwoProng_chargedIso)
-          self.out.fillBranch("TwoProng_neutralIso", TwoProng_neutralIso)
-          self.out.fillBranch("TwoProng_egammaIso", TwoProng_egammaIso)
-          self.out.fillBranch("TwoProng_trackSym", TwoProng_trackSym)
-          self.out.fillBranch("TwoProng_photonSym", TwoProng_photonSym)
-          self.out.fillBranch("TwoProng_passIso", TwoProng_passIso)
-          self.out.fillBranch("TwoProng_passSym", TwoProng_passSym)
-          self.out.fillBranch("TwoProng_isTight", TwoProng_isTight)
+        self.out.fillBranch("n"+self.label+"", nTwoProng)
+        self.out.fillBranch(""+self.label+"_pt", TwoProng_pt)
+        self.out.fillBranch(""+self.label+"_eta", TwoProng_eta)
+        self.out.fillBranch(""+self.label+"_phi", TwoProng_phi)
+        self.out.fillBranch(""+self.label+"_mass", TwoProng_mass)
+        self.out.fillBranch(""+self.label+"_massl", TwoProng_massl)
+        self.out.fillBranch(""+self.label+"_massPi0", TwoProng_massPi0)
+        self.out.fillBranch(""+self.label+"_massEta", TwoProng_massEta)
+        self.out.fillBranch(""+self.label+"_CHpos_pt", TwoProng_CHpos_pt)
+        self.out.fillBranch(""+self.label+"_CHpos_eta", TwoProng_CHpos_eta)
+        self.out.fillBranch(""+self.label+"_CHpos_phi", TwoProng_CHpos_phi)
+        self.out.fillBranch(""+self.label+"_CHpos_mass", TwoProng_CHpos_mass)
+        self.out.fillBranch(""+self.label+"_CHneg_pt", TwoProng_CHneg_pt)
+        self.out.fillBranch(""+self.label+"_CHneg_eta", TwoProng_CHneg_eta)
+        self.out.fillBranch(""+self.label+"_CHneg_phi", TwoProng_CHneg_phi)
+        self.out.fillBranch(""+self.label+"_CHneg_mass", TwoProng_CHneg_mass)
+        self.out.fillBranch(""+self.label+"_neutral_pt", TwoProng_neutral_pt)
+        self.out.fillBranch(""+self.label+"_neutral_eta", TwoProng_neutral_eta)
+        self.out.fillBranch(""+self.label+"_neutral_phi", TwoProng_neutral_phi)
+        self.out.fillBranch(""+self.label+"_neutral_mass", TwoProng_neutral_mass)
         if self.optionalTrack:
-          self.out.fillBranch("TwoProng_nTracks", TwoProng_nTracks)
-          self.out.fillBranch("TwoProng_CHextra_pt", TwoProng_CHextra_pt)
-          self.out.fillBranch("TwoProng_CHextra_eta", TwoProng_CHextra_eta)
-          self.out.fillBranch("TwoProng_CHextra_phi", TwoProng_CHextra_phi)
-          self.out.fillBranch("TwoProng_CHextra_mass", TwoProng_CHextra_mass)
-          self.out.fillBranch("TwoProng_CHextra_charge", TwoProng_CHextra_charge)
+          self.out.fillBranch(""+self.label+"_nTracks", TwoProng_nTracks)
+          self.out.fillBranch(""+self.label+"_CHextra_pt", TwoProng_CHextra_pt)
+          self.out.fillBranch(""+self.label+"_CHextra_eta", TwoProng_CHextra_eta)
+          self.out.fillBranch(""+self.label+"_CHextra_phi", TwoProng_CHextra_phi)
+          self.out.fillBranch(""+self.label+"_CHextra_mass", TwoProng_CHextra_mass)
+          self.out.fillBranch(""+self.label+"_CHextra_charge", TwoProng_CHextra_charge)
+        if self.addLoose:
+          self.out.fillBranch(""+self.label+"_chargedIso", TwoProng_chargedIso)
+          self.out.fillBranch(""+self.label+"_neutralIso", TwoProng_neutralIso)
+          self.out.fillBranch(""+self.label+"_egammaIso", TwoProng_egammaIso)
+          self.out.fillBranch(""+self.label+"_trackSym", TwoProng_trackSym)
+          self.out.fillBranch(""+self.label+"_photonSym", TwoProng_photonSym)
+          self.out.fillBranch(""+self.label+"_passIso", TwoProng_passIso)
+          self.out.fillBranch(""+self.label+"_passSym", TwoProng_passSym)
+          self.out.fillBranch(""+self.label+"_isTight", TwoProng_isTight)
         return True
 
 
