@@ -9,4 +9,3 @@ from photonModule import *
 from simpleSelector import *
 from dataFiltersModule import *
 from customGenPartModule import *
-from recoPhiModule import *
