@@ -49,12 +49,12 @@ class twoprongModule(Module):
         self.out.branch(""+self.label+"_neutral_phi", "F", lenVar="n"+self.label+"")
         self.out.branch(""+self.label+"_neutral_mass", "F", lenVar="n"+self.label+"")
         if self.optionalTrack:
-          self.out.branch(""+self.label+"Modified_nTracks", "I", lenVar="n"+self.label+"Modified")
-          self.out.branch(""+self.label+"Modified_CHextra_pt", "F", lenVar="n"+self.label+"Modified")
-          self.out.branch(""+self.label+"Modified_CHextra_eta", "F", lenVar="n"+self.label+"Modified")
-          self.out.branch(""+self.label+"Modified_CHextra_phi", "F", lenVar="n"+self.label+"Modified")
-          self.out.branch(""+self.label+"Modified_CHextra_mass", "F", lenVar="n"+self.label+"Modified")
-          self.out.branch(""+self.label+"Modified_CHextra_charge", "F", lenVar="n"+self.label+"Modified")
+          self.out.branch(""+self.label+"_nTracks", "I", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_CHextra_pt", "F", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_CHextra_eta", "F", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_CHextra_phi", "F", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_CHextra_mass", "F", lenVar="n"+self.label+"")
+          self.out.branch(""+self.label+"_CHextra_charge", "F", lenVar="n"+self.label+"")
         if self.addLoose:
           self.out.branch(""+self.label+"_chargedIso", "F", lenVar="n"+self.label+"")
           self.out.branch(""+self.label+"_neutralIso", "F", lenVar="n"+self.label+"")
