@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: nanoaod --filein file:output_numEvent100.root --fileout file:NanoAOD.root --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --customise_commands=process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False))) --conditions 106X_mc2017_realistic_v8 --step NANO --nThreads 1 --era Run2_2017,run2_nanoAOD_106Xv1 --python_filename NANOAOD_2017_cfg.py -n 10 --no_exec
+# with command line options: NANO -s NANO --mc --conditions 106X_mcRun2_asymptotic_v17 --era Run2_2016,run2_nanoAOD_106Xv2 --eventcontent NANOAODSIM --datatier NANOAODSIM --customise_commands=process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False))) -n -1 --no_exec
 import FWCore.ParameterSet.Config as cms
 
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -15,10 +15,10 @@ options.register("totalforfile", 1, VarParsing.multiplicity.singleton, VarParsin
 options.setDefault("maxEvents", -1)
 options.parseArguments()
 
-from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
 
-process = cms.Process('NANO',Run2_2017,run2_nanoAOD_106Xv2)
+process = cms.Process('NANO',Run2_2016,run2_nanoAOD_106Xv2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -88,7 +88,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('nanoaod nevts:10'),
+    annotation = cms.untracked.string('NANO nevts:-1'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -102,7 +102,7 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
         dataTier = cms.untracked.string('NANOAODSIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:NanoAOD.root'),
+    fileName = cms.untracked.string('NanoAOD.root'),
     outputCommands = process.NANOAODSIMEventContent.outputCommands
 )
 
@@ -110,7 +110,7 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_mc2017_realistic_v9', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '106X_mcRun2_asymptotic_v17', '')
 
 # Path and EndPath definitions
 process.nanoAOD_step = cms.Path(process.nanoSequenceMC)
@@ -130,7 +130,6 @@ from PhysicsTools.NanoAOD.nano_cff import nanoAOD_customizeMC
 #call to customisation function nanoAOD_customizeMC imported from PhysicsTools.NanoAOD.nano_cff
 process = nanoAOD_customizeMC(process)
 
-#call to customisation function nanoAOD_customizeMC imported from PhysicsTools.NanoAOD.nano_cff
 from PhysicsTools.PFNano.pfnano_cff import PFnano_customizeMC, PFnano_customizeMC_allPF, PFnano_customizeMC_AK4JetsOnly, PFnano_customizeMC_AK8JetsOnly, PFnano_customizeMC_noInputs
 #process = PFnano_customizeMC(process)
 process = PFnano_customizeMC_allPF(process)
@@ -148,6 +147,7 @@ if options.photonsf:
                          era='2018-UL')    
   #a sequence egammaPostRecoSeq has now been created and should be added to your path, eg process.p=cms.Path(process.egammaPostRecoSeq)
 ###########
+
 # End of customisation functions
 
 # Customisation from command line
