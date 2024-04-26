@@ -9,15 +9,16 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ("python")
 options.register("inputFilesFile", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "")
 options.register("goodLumis", "", VarParsing.multiplicity.singleton, VarParsing.varType.string, "")
+options.register("photonsf", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "")
 options.register("numof", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "")
 options.register("totalforfile", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int, "")
 options.setDefault("maxEvents", -1)
 options.parseArguments()
 
 from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
-from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
 
-process = cms.Process('NANO',Run2_2016,run2_nanoAOD_106Xv1)
+process = cms.Process('NANO', Run2_2016,run2_nanoAOD_106Xv2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -109,7 +110,7 @@ process.NANOAODoutput = cms.OutputModule("NanoAODOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v32', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '106X_dataRun2_v35', '')
 
 # Path and EndPath definitions
 process.nanoAOD_step = cms.Path(process.nanoSequence)
@@ -140,6 +141,17 @@ process = PFnano_customizeData_allPF(process)
 #process = PFnano_customizeData_noInputs(process)
 
 # End of customisation functions
+
+##########
+# For scale factors
+if options.photonsf:
+  from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+  setupEgammaPostRecoSeq(process,
+                         runEnergyCorrections=True,
+                         runVID=False, #saves CPU time by not needlessly re-running VID, if you want the Fall17V2 IDs, set this to True or remove (default is True)
+                         era='2018-UL')    
+  #a sequence egammaPostRecoSeq has now been created and should be added to your path, eg process.p=cms.Path(process.egammaPostRecoSeq)
+###########
 
 # Customisation from command line
 
