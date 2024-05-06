@@ -10,14 +10,14 @@ scram b -j 10
 
 ### running PFNano step interactively
 ```
-cp /cms/chiarito/rootfiles/framework_unittest/MiniAOD.root .
+cp <miniaod_file.root> ./MiniAOD.root
 echo "file:MiniAOD.root 1 1" >> infile.txt
-cmsRun PhysicsTools/PFNano/test/NANOAOD_XX_ULYY_cfg.py inputFilesFile=infile.txt maxEvents=10
+cmsRun PhysicsTools/PFNano/test/NANOAOD_<XX>_UL<YY>_cfg.py inputFilesFile=infile.txt maxEvents=10
 ```
 
 ### running NanoAODTools step interactively
 ```
-python PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.root -I PhysicsTools.NanoAODTools.postprocessing.modules.main twoprongConstr_optionalTrack_addLoose,photonConstr_default,recoPhiConstr_HPID,recoPhiConstr_cutBased --bo PhysicsTools/NanoAODTools/test/dropPF.txt
+python PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.root -I PhysicsTools.NanoAODTools.postprocessing.modules.main twoprongConstr_optionalTrack_addLoose,photonConstr_default --bo PhysicsTools/NanoAODTools/test/dropPF.txt
 python PhysicsTools/NanoAODTools/test/copy_tree.py NanoAOD_Skim.root
 ```
 
@@ -27,6 +27,15 @@ export SCRAM_ARCH=slc7_amd64_gcc820
 cmsrel CMSSW_10_6_27
 cd CMSSW_10_6_27/src
 cmsenv
+# begin commands for photon scale factor code
+git cms-init
+git cms-addpkg RecoEgamma/EgammaTools  ### essentially just checkout the package from CMSSW
+git clone https://github.com/cms-egamma/EgammaPostRecoTools.git
+mv EgammaPostRecoTools/python/EgammaPostRecoTools.py RecoEgamma/EgammaTools/python/.
+git clone -b ULSSfiles_correctScaleSysMC https://github.com/jainshilpi/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data/
+git cms-addpkg EgammaAnalysis/ElectronTools
+scram b -j 8
+# end photon scale factor code
 git cms-rebase-topic andrzejnovak:614nosort
 git clone https://github.com/cms-jet/PFNano.git PhysicsTools/PFNano
 git cms-addpkg PhysicsTools/NanoAOD
@@ -45,10 +54,20 @@ cp temp/tweaks/pfnano_hacks/pfnano_cff.py PhysicsTools/PFNano/python
 cp temp/tweaks/pfnano_hacks/photons_cff.py PhysicsTools/NanoAOD/python
 cp temp/tweaks/pfnano_hacks/genparticles_cff.py PhysicsTools/NanoAOD/python
 cp temp/tweaks/pfnano_hacks/LHETablesProducer.cc PhysicsTools/NanoAOD/plugins
-cp temp/tweaks/pfnano_cfgs/NANOAOD_* PhysicsTools/PFNano/test/
+cp temp/tweaks/pfnano_cfgs/NANOAOD*_cfg.py PhysicsTools/PFNano/test/
 cp temp/tweaks/pfnano_cfgs/Cert_* PhysicsTools/PFNano/test/
 cp temp/tweaks/nanoaodtools_modules/* PhysicsTools/NanoAODTools/python/postprocessing/modules/
 cp temp/tweaks/nanoaodtools_running/* PhysicsTools/NanoAODTools/test
 rm -rf temp/
 scram b -j 10
+```
+
+### extra block inserted in cmsRun config file needed for Photon scale factors
+```
+from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+setupEgammaPostRecoSeq(process,
+                       runEnergyCorrections=True,
+                       runVID=True, #saves CPU time by not needlessly re-running VID, if you want the Fall17V2 IDs, set this to True or remove (default is True)
+                       era='2018-UL')    
+#a sequence egammaPostRecoSeq has now been created and should be added to your path, eg process.p=cms.Path(process.egammaPostRecoSeq)
 ```
