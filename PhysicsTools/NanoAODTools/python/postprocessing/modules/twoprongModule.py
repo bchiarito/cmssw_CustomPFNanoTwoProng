@@ -110,50 +110,57 @@ class twoprongModule(Module):
           TwoProng_passSym = []
           TwoProng_isTight = []
 
+        filtered_pfcands = [ (i, pfcands[i]) for i in range(len(pfcands)) if (pfcands[i].fromPV > 1 and pfcands[i].pt >= const_minTrackPt and abs(pfcands[i].pdgId) == 211) ]
+        filtered_photons = [ pfcand for pfcand in pfcands if (pfcand.pdgId == 22 or abs(pfcand.pdgId) == 11) ]
+        photonPi0 = ROOT.TLorentzVector()
+        photonEta = ROOT.TLorentzVector()
 
         # loop over pf cands
-        for i in range(len(pfcands)):
-          pfvec1 = pfcands[i].p4()
-          pfvec1.SetPhi(pfcands[i].phiAtVtx)
-          if (pfcands[i].fromPV <= 1) : continue
-          if pfvec1.Pt() < const_minTrackPt : continue
-          for j in range(len(pfcands)):
+        for i, pfcand1 in filtered_pfcands:
+          pfvec1 = pfcand1.p4()
+          pfvec1.SetPhi(pfcand1.phiAtVtx)
+          for j, pfcand2 in filtered_pfcands:
             if j <= i : continue
             # charged hadron pair
-            pfvec2 = pfcands[j].p4()
-            pfvec2.SetPhi(pfcands[j].phiAtVtx)
             if not ( (pfcands[i].pdgId == 211 and pfcands[j].pdgId == -211) or (pfcands[i].pdgId == -211 and pfcands[j].pdgId == 211) ) : continue
-            if (pfcands[j].fromPV <= 1) : continue
-            if pfvec2.Pt() < const_minTrackPt : continue
-            if pfvec1.DeltaR(pfvec2) > const_minTrackDr : continue
+            pfvec2 = pfcand2.p4()
+            pfvec2.SetPhi(pfcand2.phiAtVtx)
+            if pfvec1.DeltaR(pfvec2) > const_maxTrackDr : continue
             center = pfvec1 + pfvec2
-            # photon from photon box
+            # photons: photon box + e/gamma isolation
             photon = ROOT.TLorentzVector()
-            photonPi0 = ROOT.TLorentzVector()
-            photonEta = ROOT.TLorentzVector()
             leading_pf_photon = ROOT.TLorentzVector()
-            for k in range(len(pfcands)):
-              if not(pfcands[k].pdgId == 22 or abs(pfcands[k].pdgId == 11)) : continue
-              pfvec3 = pfcands[k].p4()
-              pfvec3.SetPhi(pfcands[k].phiAtVtx)
-              if math.fabs(center.DeltaPhi(pfvec3)) > const_photonBoxPhi/2.0 : continue
-              if math.fabs(center.Eta() - pfvec3.Eta()) > const_photonBoxEta/2.0 : continue
+            passIso = True
+            egammaIso = 0
+            for pfcand_photon in filtered_photons:
+              pfvec3 = pfcand_photon.p4()
+              pfvec3.SetPhi(pfcand_photon.phiAtVtx)
+              if abs(center.DeltaPhi(pfvec3)) > const_photonBoxPhi/2.0 or abs(center.Eta() - pfvec3.Eta()) > const_photonBoxEta/2.0:
+                #if e/gamma not in photon box, check if it contributes to the photon isolation
+                if pfcand_photon.fromPV > 1 and center.DeltaR(pfvec3) <= const_isolationCone: #should pfcand_photon.fromPV >1 for everything in the photon box??-----------------------------------------
+                  egammaIso += pfvec3.Pt()
+                continue
               photon += pfvec3
               if pfvec3.Pt() > leading_pf_photon.Pt() : leading_pf_photon = pfvec3
-            photonPi0.SetPtEtaPhiM(photon.Pt(), photon.Eta(), photon.Phi(), const_pionMass)
-            photonEta.SetPtEtaPhiM(photon.Pt(), photon.Eta(), photon.Phi(), const_etaMass)
+            if photon.Pt() < const_photonMinPt : continue
             twoprong = center + photon
-            # isolation
+            if not self.optionalTrack: #for normal 2p, can now do pt and eta cuts
+              if (twoprong.Pt() < const_minPt) or (math.fabs(twoprong.Eta()) > const_maxEta) : continue            
+            # symmetry
+            passSym = True
+            track_symmetry = min(pfvec1.Pt(), pfvec2.Pt()) / max(pfvec1.Pt(), pfvec2.Pt())
+            photon_symmetry = min(pfvec1.Pt()+pfvec2.Pt(), photon.Pt()) / max(pfvec1.Pt()+pfvec2.Pt(), photon.Pt())
+            if track_symmetry < const_minTrackSymmetry or photon_symmetry < const_minPhotonSymmetry : passSym = False
+            if not self.addLoose and not passSym : continue #if no sidebands, and not passing sym, we're done
+            # extra track addition + isolation calc (except egamma iso which is calculated earlier)
             chargedIso = 0
             neutralIso = 0
-            egammaIso = 0
             extraTrackIndex = -1
-            for k in range(len(pfcands)):
-              pfvec3 = pfcands[k].p4()
-              pfvec3.SetPhi(pfcands[k].phiAtVtx)
-              if center.DeltaR(pfvec3) > const_isolationCone : continue
-              if (pfcands[k].fromPV <= 1) : continue
-              if (abs(pfcands[k].pdgId) == 211 or abs(pfcands[k].pdgId) == 13):
+            filtered_iso_candidates = [ (k, pfcand) for k, pfcand in enumerate(pfcands) if pfcand.fromPV > 1 and center.DeltaR(pfcand.p4()) <= const_isolationCone ]
+            for k, pfcand_iso in filtered_iso_candidates:
+              pfvec3 = pfcand_iso.p4()
+              pfvec3.SetPhi(pfcand_iso.phiAtVtx)
+              if abs(pfcand_iso.pdgId) in [211, 13]:
                 if k == i or k == j : continue
                 if not self.optionalTrack:
                   chargedIso += pfvec3.Pt()
@@ -164,36 +171,20 @@ class twoprongModule(Module):
                     extraTrackIndex = k
                   else:
                     chargedIso += pfvec3.Pt()
-              if pfcands[k].pdgId == 130:
+              elif pfcands[k].pdgId == 130:
                 neutralIso += pfvec3.Pt()
-              if (abs(pfcands[k].pdgId) == 11 or pfcands[k].pdgId == 22):
-                if math.fabs(center.DeltaPhi(pfvec3)) <= const_photonBoxPhi/2.0 and math.fabs(center.Eta() - pfvec3.Eta()) <= const_photonBoxEta/2.0:
-                  continue
-                egammaIso += pfvec3.Pt()
-            if self.optionalTrack and not extraTrackIndex == -1:
+            if self.optionalTrack and extraTrackIndex != -1:
               # reform twoprong momentum with extra track
               extraTrack = pfcands[extraTrackIndex].p4()
               extraTrack.SetPhi(pfcands[extraTrackIndex].phiAtVtx)
               twoprong = center + photon + extraTrack
-            passIso = True
-            if chargedIso/twoprong.Pt() > const_chargedIsoCut : passIso = False
-            if neutralIso/twoprong.Pt() > const_neutralIsoCut : passIso = False
-            if egammaIso/twoprong.Pt() > const_egammaIsoCut : passIso = False
-            # symmetry
-            passSym = True
-            track_symmetry = min(pfvec1.Pt(), pfvec2.Pt()) / max(pfvec1.Pt(), pfvec2.Pt())
-            photon_symmetry = min(pfvec1.Pt()+pfvec2.Pt(), photon.Pt()) / max(pfvec1.Pt()+pfvec2.Pt(), photon.Pt())
-            if track_symmetry < const_minTrackSymmetry : passSym = False
-            if photon_symmetry < const_minPhotonSymmetry : passSym = False
-            # apply cuts
-            if photon.Pt() < const_photonMinPt : continue
-            if twoprong.Pt() < const_minPt : continue
-            if math.fabs(twoprong.Eta()) > const_maxEta : continue
-            if not self.addLoose and not passIso: continue
-            if not self.addLoose and not passSym: continue
-            #
-            pfvec2 = pfcands[j].p4()
-            pfvec2.SetPhi(pfcands[j].phiAtVtx)
+            if (chargedIso / twoprong.Pt() > const_chargedIsoCut) or (neutralIso / twoprong.Pt() > const_neutralIsoCut) or (egammaIso / twoprong.Pt() > const_egammaIsoCut): passIso = False
+            if not self.addLoose and not passIso: continue                
+            if self.optionalTrack:
+              if (twoprong.Pt() < const_minPt) or (math.fabs(twoprong.Eta())) > const_maxEta : continue            
+            photonPi0.SetPtEtaPhiM(photon.Pt(), photon.Eta(), photon.Phi(), const_pionMass)
+            photonEta.SetPtEtaPhiM(photon.Pt(), photon.Eta(), photon.Phi(), const_etaMass)
+
             if (pfcands[i].pdgId == 211):
               chpos = pfvec1
               chneg = pfvec2
@@ -288,10 +279,11 @@ class twoprongModule(Module):
             TwoProng_CHextra_mass,
             TwoProng_CHextra_charge,
           ])
+          # Get sorted indices based on TwoProng_pt once
+          sorted_indices = sorted(range(len(TwoProng_pt)), key=lambda k: TwoProng_pt[k], reverse=True)
+          # Apply the sorted indices to all branches
           for branch in twoprong_branches:
-              lookup = dict(( (el, TwoProng_pt[branch.index(el)]) for el in branch))
-              branch.sort(key = lookup.__getitem__, reverse=True)
-          TwoProng_pt.sort(reverse=True)
+              branch[:] = [branch[i] for i in sorted_indices]
 
         # fill branches
         nTwoProng = len(TwoProng_pt)

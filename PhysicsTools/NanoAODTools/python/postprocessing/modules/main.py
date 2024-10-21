@@ -9,3 +9,4 @@ from photonModule import *
 from simpleSelector import *
 from dataFiltersModule import *
 from customGenPartModule import *
+from twoprongModule_looseandtight2p_tightmod2p import *

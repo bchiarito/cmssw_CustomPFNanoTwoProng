@@ -1,6 +1,6 @@
 const_pionMass = 0.13497
 const_etaMass = 0.54786
-const_minTrackDr = 0.05
+const_maxTrackDr = 0.05
 const_minTrackPt = 3.0
 const_photonBoxPhi = 0.2
 const_photonBoxEta = 0.05
