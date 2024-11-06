@@ -59,6 +59,9 @@ else:
         totalforfile = int(totalforfile)
         readFiles.append(location)
 
+numof=1
+totalforfile=1
+
 # compute skips
 if numof==1 and totalforfile==1:
   maxevents = -1

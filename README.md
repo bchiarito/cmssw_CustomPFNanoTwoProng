@@ -12,9 +12,11 @@ cd test
 ```
 
 ### to submit crab jobs
+See script help:
 ```
 ./submit_crab.py --help
 ```
+Some crab configuration can be changed with command line arguments but the rest can be changed manually by editing submit_crab.py
 
 ### subsequent logins to check jobs only
 ```

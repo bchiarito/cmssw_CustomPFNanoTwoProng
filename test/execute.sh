@@ -30,7 +30,7 @@ ls -lh CMSSW_10_6_27/src/PhysicsTools/NanoAODTools/
 echo '&&& Run NanoAODTools postprocessor &&&'
 pwd
 ls -lh *.root
-/usr/bin/time -v python CMSSW_10_6_27/src/PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.root -I PhysicsTools.NanoAODTools.postprocessing.modules.main twoprongConstr_default,photonConstr_default --bo dropPF.txt
+/usr/bin/time -v python CMSSW_10_6_27/src/PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.root -I PhysicsTools.NanoAODTools.postprocessing.modules.main twoprongDataMCConstr_default,photonConstr_default --bo dropPF.txt
 pwd
 ls -lh *.root
 
