@@ -38,6 +38,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 readFiles = []
 if options.inputFilesFile == "":
   readFiles.extend(['file:miniAOD_numEvent10.root'])
+  numof=1
+  totalforfile=1
 else:
   with open(options.inputFilesFile) as fi:
     for line in fi:
@@ -104,6 +106,10 @@ process.NANOAODoutput = cms.OutputModule("NanoAODOutputModule",
     ),
     fileName = cms.untracked.string('NanoAOD.root'),
     outputCommands = process.NANOAODEventContent.outputCommands
+)
+
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+    ignoreTotal = cms.untracked.int32(1)
 )
 
 # Additional output definition

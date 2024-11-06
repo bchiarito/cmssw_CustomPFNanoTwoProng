@@ -1,24 +1,42 @@
-### build instructions
+### initial build to submit crab jobs
 ```
+cmssw-el7 # or equivilant on hexcms
 export SCRAM_ARCH=slc7_amd64_gcc820
 cmsrel CMSSW_10_6_27
 cd CMSSW_10_6_27/src
 cmsenv
 git clone git@github.com:bchiarito/cmssw_CustomPFNanoTwoProng.git .
-scram b -j 10
+scram b -j 20 # less than 5 minutes
+source /cvmfs/cms.cern.ch/common/crab-setup.sh
+cd test
 ```
 
-### running PFNano step interactively
+### to submit crab jobs
 ```
-cp <miniaod_file.root> ./MiniAOD.root
-echo "file:MiniAOD.root 1 1" >> infile.txt
-cmsRun PhysicsTools/PFNano/test/NANOAOD_<XX>_UL<YY>_cfg.py inputFilesFile=infile.txt maxEvents=10
+./submit_crab.py --help
 ```
 
-### running NanoAODTools step interactively
+### subsequent logins to check jobs only
 ```
-python PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.root -I PhysicsTools.NanoAODTools.postprocessing.modules.main twoprongConstr_optionalTrack_addLoose,photonConstr_default --bo PhysicsTools/NanoAODTools/test/dropPF.txt
-python PhysicsTools/NanoAODTools/test/copy_tree.py NanoAOD_Skim.root
+cd CMSSW_10_6_27/src/test
+cmsenv
+source /cvmfs/cms.cern.ch/common/crab-setup.sh
+cd test
+```
+
+### to check on crab jobs
+```
+crab status -d <crab_dir> # specific job
+crab tasks # list all jobs
+```
+
+### subsequent logins to submit new jobs
+```
+cmssw-el7 # or equivilant on hexcms
+cd CMSSW_10_6_27/src/test
+cmsenv
+source /cvmfs/cms.cern.ch/common/crab-setup.sh
+cd test
 ```
 
 ### build instructions from scratch
@@ -71,3 +89,17 @@ setupEgammaPostRecoSeq(process,
                        era='2018-UL')    
 #a sequence egammaPostRecoSeq has now been created and should be added to your path, eg process.p=cms.Path(process.egammaPostRecoSeq)
 ```
+
+### running PFNano step interactively
+```
+cp <miniaod_file.root> ./MiniAOD.root
+echo "file:MiniAOD.root 1 1" >> infile.txt
+cmsRun PhysicsTools/PFNano/test/NANOAOD_<XX>_UL<YY>_cfg.py inputFilesFile=infile.txt maxEvents=10
+```
+
+### running NanoAODTools step interactively
+```
+python PhysicsTools/NanoAODTools/scripts/nano_postproc.py . NanoAOD.root -I PhysicsTools.NanoAODTools.postprocessing.modules.main twoprongConstr_optionalTrack_addLoose,photonConstr_default --bo PhysicsTools/NanoAODTools/test/dropPF.txt
+python PhysicsTools/NanoAODTools/test/copy_tree.py NanoAOD_Skim.root
+```
+

@@ -1,0 +1,7 @@
+keep *
+drop nPFCands*
+drop PFCands*
+drop JetPFCands*
+drop nJetPFCands*
+drop FatJetPFCands*
+drop nFatJetPFCands*
