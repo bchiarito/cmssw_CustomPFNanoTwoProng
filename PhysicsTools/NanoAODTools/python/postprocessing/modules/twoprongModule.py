@@ -48,6 +48,9 @@ class twoprongModule(Module):
         self.out.branch(""+self.label+"_neutral_eta", "F", lenVar="n"+self.label+"")
         self.out.branch(""+self.label+"_neutral_phi", "F", lenVar="n"+self.label+"")
         self.out.branch(""+self.label+"_neutral_mass", "F", lenVar="n"+self.label+"")
+        self.out.branch(""+self.label+"_neutral_nPFpho", "I", lenVar="nTwoProng")
+        self.out.branch(""+self.label+"_neutral_nPFele", "I", lenVar="nTwoProng")
+        self.out.branch(""+self.label+"_neutral_nPFpos", "I", lenVar="nTwoProng")
         if self.optionalTrack:
           self.out.branch(""+self.label+"_nTracks", "I", lenVar="n"+self.label+"")
           self.out.branch(""+self.label+"_CHextra_pt", "F", lenVar="n"+self.label+"")
@@ -93,6 +96,9 @@ class twoprongModule(Module):
         TwoProng_neutral_eta = []
         TwoProng_neutral_phi = []
         TwoProng_neutral_mass = []
+        TwoProng_neutral_nPFpho = []
+        TwoProng_neutral_nPFele = []
+        TwoProng_neutral_nPFpos = []
         if self.optionalTrack:
           TwoProng_nTracks = []
           TwoProng_CHextra_pt = []
@@ -132,6 +138,9 @@ class twoprongModule(Module):
             leading_pf_photon = ROOT.TLorentzVector()
             passIso = True
             egammaIso = 0
+            PFpho = 0
+            PFele = 0
+            PFpos = 0            
             for pfcand_photon in filtered_photons:
               pfvec3 = pfcand_photon.p4()
               pfvec3.SetPhi(pfcand_photon.phiAtVtx)
@@ -142,6 +151,10 @@ class twoprongModule(Module):
                 continue
               photon += pfvec3
               if pfvec3.Pt() > leading_pf_photon.Pt() : leading_pf_photon = pfvec3
+              pdg = pfcand_photon.pdgId
+              if pdg==22: PFpho+=1
+              elif pdg==11: PFpos+=1
+              elif pdg==-11: PFele+=1              
             if photon.Pt() < const_photonMinPt : continue
             twoprong = center + photon
             if not self.optionalTrack: #for normal 2p, can now do pt and eta cuts
@@ -156,23 +169,20 @@ class twoprongModule(Module):
             chargedIso = 0
             neutralIso = 0
             extraTrackIndex = -1
+            extraTrackPt=0
             filtered_iso_candidates = [ (k, pfcand) for k, pfcand in enumerate(pfcands) if pfcand.fromPV > 1 and center.DeltaR(pfcand.p4()) <= const_isolationCone ]
             for k, pfcand_iso in filtered_iso_candidates:
               pfvec3 = pfcand_iso.p4()
               pfvec3.SetPhi(pfcand_iso.phiAtVtx)
-              if abs(pfcand_iso.pdgId) in [211, 13]:
-                if k == i or k == j : continue
-                if not self.optionalTrack:
-                  chargedIso += pfvec3.Pt()
-                elif pfvec3.Pt() < const_minTrackPt:
-                  chargedIso += pfvec3.Pt()
-                else:
-                  if extraTrackIndex == -1:
-                    extraTrackIndex = k
-                  else:
-                    chargedIso += pfvec3.Pt()
+              pfvec3_pt = pfvec3.Pt()
+              if abs(pfcand_iso.pdgId) in [211, 13] and (k not in (i,j)):
+                chargedIso += pfvec3_pt
+                if self.optionalTrack and pfvec3_pt > const_minTrackPt and pfvec3_pt >extraTrackPt:
+                  extraTrackIndex = k
+                  extraTrackPt = pfvec3_pt
               elif pfcands[k].pdgId == 130:
-                neutralIso += pfvec3.Pt()
+                neutralIso += pfvec3_pt
+            chargedIso = chargedIso - extraTrackPt
             if self.optionalTrack and extraTrackIndex != -1:
               # reform twoprong momentum with extra track
               extraTrack = pfcands[extraTrackIndex].p4()
@@ -212,6 +222,9 @@ class twoprongModule(Module):
             TwoProng_neutral_eta.append(neutral.Eta())
             TwoProng_neutral_phi.append(neutral.Phi())
             TwoProng_neutral_mass.append(neutral.M())
+            TwoProng_neutral_nPFpho.append(PFpho)
+            TwoProng_neutral_nPFele.append(PFele)
+            TwoProng_neutral_nPFpos.append(PFpos)
             if self.addLoose:
               TwoProng_chargedIso.append(chargedIso/twoprong.Pt())
               TwoProng_neutralIso.append(neutralIso/twoprong.Pt())
@@ -242,6 +255,7 @@ class twoprongModule(Module):
         # sort twoprong collections
         if len(TwoProng_pt)>1:
           twoprong_branches = [
+            TwoProng_pt,
             TwoProng_eta,
             TwoProng_phi,
             TwoProng_mass,
@@ -260,6 +274,9 @@ class twoprongModule(Module):
             TwoProng_neutral_eta,
             TwoProng_neutral_phi,
             TwoProng_neutral_mass,
+            TwoProng_neutral_nPFpho,
+            TwoProng_neutral_nPFele,
+            TwoProng_neutral_nPFpos,          
           ]
           if self.addLoose: twoprong_branches.extend([
             TwoProng_chargedIso,
@@ -307,6 +324,9 @@ class twoprongModule(Module):
         self.out.fillBranch(""+self.label+"_neutral_eta", TwoProng_neutral_eta)
         self.out.fillBranch(""+self.label+"_neutral_phi", TwoProng_neutral_phi)
         self.out.fillBranch(""+self.label+"_neutral_mass", TwoProng_neutral_mass)
+        self.out.fillBranch(""+self.label+"_neutral_nPFpho", TwoProng_neutral_nPFpho)
+        self.out.fillBranch(""+self.label+"_neutral_nPFele", TwoProng_neutral_nPFele)
+        self.out.fillBranch(""+self.label+"_neutral_nPFpos", TwoProng_neutral_nPFpos)
         if self.optionalTrack:
           self.out.fillBranch(""+self.label+"_nTracks", TwoProng_nTracks)
           self.out.fillBranch(""+self.label+"_CHextra_pt", TwoProng_CHextra_pt)

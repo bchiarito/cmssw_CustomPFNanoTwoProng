@@ -43,6 +43,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
         self.out.branch("TwoProng_neutral_eta",  "F", lenVar="nTwoProng")
         self.out.branch("TwoProng_neutral_phi",  "F", lenVar="nTwoProng")
         self.out.branch("TwoProng_neutral_mass", "F", lenVar="nTwoProng")
+        self.out.branch("TwoProng_neutral_nPFpho", "I", lenVar="nTwoProng")
+        self.out.branch("TwoProng_neutral_nPFele", "I", lenVar="nTwoProng")
+        self.out.branch("TwoProng_neutral_nPFpos", "I", lenVar="nTwoProng")
         self.out.branch("TwoProng_chargedIso",   "F", lenVar="nTwoProng")
         self.out.branch("TwoProng_neutralIso",   "F", lenVar="nTwoProng")
         self.out.branch("TwoProng_egammaIso",    "F", lenVar="nTwoProng")
@@ -72,6 +75,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
         self.out.branch("TwoProngModified_neutral_eta",    "F", lenVar="nTwoProngModified")
         self.out.branch("TwoProngModified_neutral_phi",    "F", lenVar="nTwoProngModified")
         self.out.branch("TwoProngModified_neutral_mass",   "F", lenVar="nTwoProngModified")
+        self.out.branch("TwoProngModified_neutral_nPFpho",  "I", lenVar="nTwoProngModified")
+        self.out.branch("TwoProngModified_neutral_nPFele",  "I", lenVar="nTwoProngModified")
+        self.out.branch("TwoProngModified_neutral_nPFpos",  "I", lenVar="nTwoProngModified")
         self.out.branch("TwoProngModified_chargedIso",     "F", lenVar="nTwoProngModified")
         self.out.branch("TwoProngModified_neutralIso",     "F", lenVar="nTwoProngModified")
         self.out.branch("TwoProngModified_egammaIso",      "F", lenVar="nTwoProngModified")
@@ -116,7 +122,10 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
         TwoProng_neutral_eta = []
         TwoProng_neutral_phi = []
         TwoProng_neutral_mass = []
-        
+        TwoProng_neutral_nPFpho = []
+        TwoProng_neutral_nPFele = []
+        TwoProng_neutral_nPFpos = []
+
         TwoProng_chargedIso = []
         TwoProng_neutralIso = []
         TwoProng_egammaIso = []
@@ -145,6 +154,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
         TwoProngModified_neutral_eta = []
         TwoProngModified_neutral_phi = []
         TwoProngModified_neutral_mass = []
+        TwoProngModified_neutral_nPFpho = []
+        TwoProngModified_neutral_nPFele = []
+        TwoProngModified_neutral_nPFpos = []
 
         TwoProngModified_chargedIso = []
         TwoProngModified_neutralIso = []
@@ -184,6 +196,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
             photon = ROOT.TLorentzVector()
             leading_pf_photon = ROOT.TLorentzVector()
             egammaIso = 0
+            PFpho = 0
+            PFele = 0
+            PFpos = 0
             for pfcand_photon in filtered_photons:
               pfvec3 = pfcand_photon.p4()
               pfvec3.SetPhi(pfcand_photon.phiAtVtx)
@@ -194,6 +209,10 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
                 continue
               photon += pfvec3
               if pfvec3.Pt() > leading_pf_photon.Pt() : leading_pf_photon = pfvec3
+              pdg = pfcand_photon.pdgId
+              if pdg==22: PFpho+=1
+              elif pdg==11: PFpos+=1
+              elif pdg==-11: PFele+=1
             if photon.Pt() < const_photonMinPt : continue
             twoprong = center + photon
             photonPi0.SetPtEtaPhiM(photon.Pt(), photon.Eta(), photon.Phi(), const_pionMass)
@@ -203,22 +222,24 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
 
             # extra track search + isolation calc (except egamma iso which is calculated earlier)
             chargedIso = 0
-            modifiedchargedIso = 0
             neutralIso = 0
             extraTrackIndex = -1
-            filtered_iso_candidates = [ (k, pfcand) for k, pfcand in enumerate(pfcands) if (pfcand.fromPV > 1 and center.DeltaR(pfcand.p4()) <= const_isolationCone) ]
-            for k, pfcand_iso in filtered_iso_candidates:
-              pfvec3 = pfcand_iso.p4()
-              pfvec3.SetPhi(pfcand_iso.phiAtVtx)
-              if pfcands[k].pdgId == 130:
-                neutralIso += pfvec3.Pt()
-              elif abs(pfcand_iso.pdgId) in [211, 13]:
-                if k == i or k == j : continue
-                chargedIso += pfvec3.Pt()
-                if extraTrackIndex == -1 and pfvec3.Pt() > const_minTrackPt:
-                  extraTrackIndex = k
-                  continue
-                modifiedchargedIso+=pfvec3.Pt() #same as normal charged iso, except it doesn't include the extra track
+            extraTrackPt=0
+            for k, pfcand_iso in enumerate(pfcands):
+              if pfcand_iso.fromPV <= 1: continue
+              pfvec4 = pfcand_iso.p4()
+              pfvec4.SetPhi(pfcand_iso.phiAtVtx)
+              pfvec4_deltaR = center.DeltaR(pfvec4)
+              if pfvec4_deltaR > const_isolationCone: continue
+	      pfvec4_pt = pfvec4.Pt()
+              if pfcand_iso.pdgId == 130:
+                neutralIso += pfvec4_pt
+              elif (abs(pfcand_iso.pdgId) in [211, 13]) and (k not in (i,j)):
+                chargedIso += pfvec4_pt
+	        if pfvec4_pt >= const_minTrackPt and pfvec4_pt > extraTrackPt: #and pfvec4_deltaR <= const_maxTrackDr: #to reduce third track dR from 0.3 to 0.05
+	          extraTrackIndex = k
+                  extraTrackPt = pfvec4_pt
+      	    modifiedchargedIso = chargedIso - extraTrackPt #same as normal charged iso, except it doesn't include the extra track
             passIso =  (chargedIso / twoprong.Pt() < const_chargedIsoCut) and (neutralIso / twoprong.Pt() < const_neutralIsoCut) and (egammaIso / twoprong.Pt() < const_egammaIsoCut)
             
             # include extra track in modified twoprong; for these, cut on pt and eta, calc and cut on iso and sym, then save
@@ -253,6 +274,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
                     TwoProngModified_neutral_eta.append(neutral.Eta())
                     TwoProngModified_neutral_phi.append(neutral.Phi())
                     TwoProngModified_neutral_mass.append(neutral.M())
+                    TwoProngModified_neutral_nPFpho.append(PFpho)
+                    TwoProngModified_neutral_nPFele.append(PFele)
+                    TwoProngModified_neutral_nPFpos.append(PFpos)
                     TwoProngModified_chargedIso.append(modifiedchargedIso/modifiedtwoprong.Pt())
                     TwoProngModified_neutralIso.append(neutralIso/modifiedtwoprong.Pt())
                     TwoProngModified_egammaIso.append(egammaIso/modifiedtwoprong.Pt())
@@ -296,6 +320,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
             TwoProng_neutral_eta.append(neutral.Eta())
             TwoProng_neutral_phi.append(neutral.Phi())
             TwoProng_neutral_mass.append(neutral.M())
+            TwoProng_neutral_nPFpho.append(PFpho)
+            TwoProng_neutral_nPFele.append(PFele)
+            TwoProng_neutral_nPFpos.append(PFpos)
             TwoProng_chargedIso.append(chargedIso/twoprong.Pt())
             TwoProng_neutralIso.append(neutralIso/twoprong.Pt())
             TwoProng_egammaIso.append(egammaIso/twoprong.Pt())
@@ -326,6 +353,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
               TwoProngModified_neutral_eta.append(neutral.Eta())
               TwoProngModified_neutral_phi.append(neutral.Phi())
               TwoProngModified_neutral_mass.append(neutral.M())
+              TwoProngModified_neutral_nPFpho.append(PFpho)
+              TwoProngModified_neutral_nPFele.append(PFele)
+              TwoProngModified_neutral_nPFpos.append(PFpos)
               TwoProngModified_chargedIso.append(chargedIso/twoprong.Pt())
               TwoProngModified_neutralIso.append(neutralIso/twoprong.Pt())
               TwoProngModified_egammaIso.append(egammaIso/twoprong.Pt())
@@ -345,6 +375,7 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
         # sort twoprong collections
         if len(TwoProng_pt)>1:
           twoprong_branches = [
+            TwoProng_pt,
             TwoProng_eta,
             TwoProng_phi,
             TwoProng_mass,
@@ -363,6 +394,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
             TwoProng_neutral_eta,
             TwoProng_neutral_phi,
             TwoProng_neutral_mass,
+            TwoProng_neutral_nPFpho,
+            TwoProng_neutral_nPFele,
+            TwoProng_neutral_nPFpos,
             TwoProng_chargedIso,
             TwoProng_neutralIso,
             TwoProng_egammaIso,
@@ -382,6 +416,7 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
 
         if len(TwoProngModified_pt)>1:
           twoprong_branches = [
+            TwoProngModified_pt,
             TwoProngModified_eta,
             TwoProngModified_phi,
             TwoProngModified_mass,
@@ -400,6 +435,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
             TwoProngModified_neutral_eta,
             TwoProngModified_neutral_phi,
             TwoProngModified_neutral_mass,
+            TwoProngModified_neutral_nPFpho,
+            TwoProngModified_neutral_nPFele,
+            TwoProngModified_neutral_nPFpos,
             TwoProngModified_chargedIso,
             TwoProngModified_neutralIso,
             TwoProngModified_egammaIso,
@@ -443,6 +481,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
         self.out.fillBranch("TwoProng_neutral_eta", TwoProng_neutral_eta)
         self.out.fillBranch("TwoProng_neutral_phi", TwoProng_neutral_phi)
         self.out.fillBranch("TwoProng_neutral_mass", TwoProng_neutral_mass)
+        self.out.fillBranch("TwoProng_neutral_nPFpho", TwoProng_neutral_nPFpho)
+        self.out.fillBranch("TwoProng_neutral_nPFele", TwoProng_neutral_nPFele)
+        self.out.fillBranch("TwoProng_neutral_nPFpos", TwoProng_neutral_nPFpos)
         self.out.fillBranch("TwoProng_chargedIso", TwoProng_chargedIso)
         self.out.fillBranch("TwoProng_neutralIso", TwoProng_neutralIso)
         self.out.fillBranch("TwoProng_egammaIso", TwoProng_egammaIso)
@@ -472,6 +513,9 @@ class twoprongModule_looseandtight2p_tightmod2p(Module):
         self.out.fillBranch("TwoProngModified_neutral_eta", TwoProngModified_neutral_eta)
         self.out.fillBranch("TwoProngModified_neutral_phi", TwoProngModified_neutral_phi)
         self.out.fillBranch("TwoProngModified_neutral_mass", TwoProngModified_neutral_mass)
+        self.out.fillBranch("TwoProngModified_neutral_nPFpho", TwoProngModified_neutral_nPFpho)
+        self.out.fillBranch("TwoProngModified_neutral_nPFele", TwoProngModified_neutral_nPFele)
+        self.out.fillBranch("TwoProngModified_neutral_nPFpos", TwoProngModified_neutral_nPFpos)
         self.out.fillBranch("TwoProngModified_chargedIso", TwoProngModified_chargedIso)
         self.out.fillBranch("TwoProngModified_neutralIso", TwoProngModified_neutralIso)
         self.out.fillBranch("TwoProngModified_egammaIso", TwoProngModified_egammaIso)
